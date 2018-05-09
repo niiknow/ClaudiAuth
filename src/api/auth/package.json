@@ -1,5 +1,5 @@
 {
-  "name": "ClaudiAuth auth",
+  "name": "auth",
   "version": "1.0.0",
   "description": "Lambda function for auth api",
   "scripts": {
@@ -45,6 +45,12 @@
       "capitalized-comments": [
         "error",
         "never"
+      ],
+      "camelcase": [
+        "error",
+        {
+          "properties": "never"
+        }
       ],
       "ava/prefer-async-await": 0
     }
