@@ -1,0 +1,54 @@
+{
+  "name": "users",
+  "version": "1.0.0",
+  "description": "Lambda function for users api",
+  "scripts": {
+    "test": "xo && nyc ava",
+    "create": "claudia create --region us-east-2 --timeout 10 --api-module index --set-env-from-json ../../../.env.dev.json",
+    "update": "claudia update --set-env-from-json  ../../../.env.dev.json",
+    "update-stg": "claudia update --version stg --set-env-from-json  ../../../.env.stg.json",
+    "update-prd": "claudia update --version prd --set-env-from-json  ../../../.env.prd.json"
+  },
+  "author": "noogen <friends@niiknow.org>",
+  "dependencies": {
+    "claudia-api-builder": "^4.0.0"
+  },
+  "optionalDependencies": {
+    "aws-sdk": "^2.235.1"
+  },
+  "devDependencies": {
+    "ava": "^0.25.0",
+    "claudia": "^4.0.0",
+    "nyc": "^11.7.2",
+    "sinon": "^5.0.7",
+    "xo": "^0.21.0"
+  },
+  "engines": {
+    "node": ">=6"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    ""
+  ],
+  "xo": {
+    "semicolon": true,
+    "prefer-const": false,
+    "space": 2,
+    "rules": {
+      "object-shorthand": [
+        0,
+        "consistent"
+      ],
+      "capitalized-comments": [
+        "error",
+        "never"
+      ],
+      "ava/prefer-async-await": 0
+    }
+  },
+  "ava": {
+    "failWithoutAssertions": true
+  }
+}

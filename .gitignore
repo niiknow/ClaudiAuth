@@ -58,6 +58,5 @@ typings/
 .env
 
 # ignore config
-config.json
 .env.**.*
 
