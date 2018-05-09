@@ -9,8 +9,8 @@
             "Effect": "Allow",
             "Action": "s3:*",
             "Resource": [
-                "arn:aws:s3:::claudiauthdb-claudiauthapp",
-                "arn:aws:s3:::claudiauthdb-claudiauthapp/*"
+                "arn:aws:s3:::cdb-claudiauthapp",
+                "arn:aws:s3:::cdb-claudiauthapp/*"
             ]
         }
     ]

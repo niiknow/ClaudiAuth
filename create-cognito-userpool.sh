@@ -27,16 +27,16 @@ if [ ! -f config.json ]; then
 fi
 
 # Read other configuration from config.json
-cliProfile=`node -p "require('./config.json').cliProfile"` 
+cliProfile=`node -p "require('./config.json').cliProfile"`
 if [[ $? == 0 ]]; then
   echo "Setting session CLI profile to $cliProfile"
   export AWS_DEFAULT_PROFILE=$cliProfile
 fi
 env=`node -p "require('./config.json').env"`
-region=`node -p "require('./config.json').region"` 
-appName=`node -p "require('./config.json').appName"` 
+region=`node -p "require('./config.json').region"`
+appName=`node -p "require('./config.json').appName"`
 appNameLowerCase=$(echo "$appName" | tr '[:upper:]' '[:lower:]')
-adminEmail=`node -p "require('./config.json').adminEmail"` 
+adminEmail=`node -p "require('./config.json').adminEmail"`
 clientDef=`node -p "JSON.stringify(require('./config.json').clientDef)"`
 poolDef=`node -p "JSON.stringify(require('./config.json').poolDef)"`
 bucketName=cdb-$appNameLowerCase
@@ -97,11 +97,18 @@ EOF
     ]
 }
 EOF
-) > ./policies/claudiauthdb.json
+) > ./aws-default-policies/claudiauthdb.json
 
 ( cat <<EOF
 {
     "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cognito-idp:ListUsers"
+            ],
+            "Resource": "$userPoolArn"
+        },
         {
             "Effect": "Allow",
             "Action": [
@@ -112,6 +119,6 @@ EOF
     ]
 }
 EOF
-) > ./policies/cognito-idp.json
+) > ./aws-default-policies/cognito-idp.json
 
 exit 0

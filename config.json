@@ -2,193 +2,187 @@
 	"env": "dev",
 	"cliProfile": "default",
 	"region": "us-west-2",
-	"appName": "ClaudiauthApp",
+	"appName": "ClaudiAuthApp",
 	"adminEmail": "friends@niiknow.org",
 	"poolDef": {
-	    "Policies": {
-	        "PasswordPolicy": {
-	            "MinimumLength": 8,
-	            "RequireUppercase": true,
-	            "RequireLowercase": true,
-	            "RequireNumbers": true,
-	            "RequireSymbols": true
-	        }
-	    },
-	    "AutoVerifiedAttributes": ["email"],
-	    "MfaConfiguration": "OFF",
-	    "AdminCreateUserConfig": {
-	        "AllowAdminCreateUserOnly": false,
-			"UnusedAccountValidityDays": 365
-	    },
-	    "UsernameAttributes": ["email"],
-	    "Schema": [
-	        {
-	            "Name": "email",
-	            "StringAttributeConstraints": {
-	                "MinLength": "8",
-	                "MaxLength": "250"
-	            },
-	            "DeveloperOnlyAttribute": false,
-	            "Required": true,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "AttributeDataType": "Boolean",
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "Name": "email_verified",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "address2",
-	            "StringAttributeConstraints": {
-	                "MaxLength": "250"
-	            },
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "city",
-	            "StringAttributeConstraints": {
-	                "MaxLength": "250"
-	            },
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "state",
-	            "StringAttributeConstraints": {
-	                "MaxLength": "2"
-	            },
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "postal",
-	            "StringAttributeConstraints": {
-	                "MaxLength": "50"
-	            },
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "AttributeDataType": "Boolean",
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "Name": "is_retired",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "occupation",
-	            "StringAttributeConstraints": {
-	                "MaxLength": "250"
-	            },
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "employer",
-	            "StringAttributeConstraints": {
-	                "MaxLength": "250"
-	            },
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "email_list_optin_at",
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "DateTime",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "card_brand",
-	            "StringAttributeConstraints": {
-	                "MaxLength": "50"
-	            },
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "card_last4",
-	            "StringAttributeConstraints": {
-	                "MaxLength": "4"
-	            },
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "card_month",
-	            "NumberAttributeConstraints": {
-                    "MaxValue": "12",
-                    "MinValue": "1"
-				},
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "card_year",
-	            "NumberAttributeConstraints": {
-                    "MaxValue": "9999",
-                    "MinValue": "2010"
-				},
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "payment_customer_id",
-	            "StringAttributeConstraints": {
-	                "MaxLength": "250"
-	            },
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "payment_type",
-	            "StringAttributeConstraints": {
-	                "MaxLength": "50"
-	            },
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        },
-	        {
-	            "Name": "teams",
-	            "DeveloperOnlyAttribute": false,
-	            "Required": false,
-	            "AttributeDataType": "String",
-	            "Mutable": true
-	        }
-	    ]
+    "Policies": {
+        "PasswordPolicy": {
+            "MinimumLength": 8,
+            "RequireUppercase": true,
+            "RequireLowercase": true,
+            "RequireNumbers": true,
+            "RequireSymbols": true
+        }
+    },
+    "MfaConfiguration": "OFF",
+    "AdminCreateUserConfig": {
+      "AllowAdminCreateUserOnly": false,
+		  "UnusedAccountValidityDays": 365
+    },
+    "AliasAttributes": ["preferred_username"],
+    "UserPoolTags": {
+      "ClaudiAuth": "App"
+    },
+    "Schema": [
+      {
+        "Name": "address2",
+        "StringAttributeConstraints": {
+          "MaxLength": "250"
+        },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "city",
+        "StringAttributeConstraints": {
+            "MaxLength": "250"
+        },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "state",
+        "StringAttributeConstraints": {
+            "MaxLength": "2"
+        },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "postal",
+        "StringAttributeConstraints": {
+            "MaxLength": "50"
+        },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "country",
+        "StringAttributeConstraints": {
+            "MaxLength": "50"
+        },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "is_retired",
+        "AttributeDataType": "Boolean",
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "Mutable": true
+      },
+      {
+        "Name": "occupation",
+        "StringAttributeConstraints": {
+            "MaxLength": "250"
+        },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "employer",
+        "StringAttributeConstraints": {
+            "MaxLength": "250"
+        },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "email_list_optin_at",
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "DateTime",
+        "Mutable": true
+      },
+      {
+        "Name": "pay_brand",
+        "StringAttributeConstraints": {
+            "MaxLength": "50"
+        },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "pay_last4",
+        "StringAttributeConstraints": {
+            "MaxLength": "4"
+        },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "pay_exp_month",
+        "NumberAttributeConstraints": {
+              "MaxValue": "12",
+              "MinValue": "1"
+	      },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "card_exp_year",
+        "NumberAttributeConstraints": {
+              "MaxValue": "9999",
+              "MinValue": "2010"
+	      },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "pay_customer_id",
+        "StringAttributeConstraints": {
+            "MaxLength": "250"
+        },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "pay_type",
+        "StringAttributeConstraints": {
+            "MaxLength": "50"
+        },
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "teams",
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      }
+    ]
 	},
 	"clientDef": {
-	    "GenerateSecret": false, 
-	    "RefreshTokenValidity": 30, 
-	    "ReadAttributes": [], 
-	    "WriteAttributes": []
+    "GenerateSecret": false,
+    "RefreshTokenValidity": 31,
+    "ReadAttributes": [],
+    "WriteAttributes": []
 	}
 }

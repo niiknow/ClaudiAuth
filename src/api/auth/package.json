@@ -1,18 +1,19 @@
 {
-  "name": "users",
+  "name": "ClaudiAuth auth",
   "version": "1.0.0",
-  "description": "Lambda function for users api",
+  "description": "Lambda function for auth api",
   "scripts": {
     "test": "xo && nyc ava",
     "create": "claudia create --region us-east-2 --timeout 10 --api-module index --set-env-from-json ../../../.env.dev.json",
-    "update": "claudia update --set-env-from-json  ../../../.env.dev.json",
-    "update-stg": "claudia update --version stg --set-env-from-json  ../../../.env.stg.json",
-    "update-prd": "claudia update --version prd --set-env-from-json  ../../../.env.prd.json"
+    "update": "claudia update --set-env-from-json ../../../.env.dev.json",
+    "update-stg": "claudia update --version stg --set-env-from-json ../../../.env.stg.json",
+    "update-prd": "claudia update --version prd --set-env-from-json ../../../.env.prd.json"
   },
   "author": "noogen <friends@niiknow.org>",
   "dependencies": {
     "amazon-cognito-identity-js": "^2.0.3",
-    "claudia-api-builder": "^4.0.0"
+    "claudia-api-builder": "^4.0.0",
+    "uuid": "^3.2.1"
   },
   "optionalDependencies": {
     "aws-sdk": "^2.235.1"
