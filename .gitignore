@@ -60,3 +60,5 @@ typings/
 # ignore config
 .env.**.*
 
+policies/
+

@@ -99,4 +99,19 @@ EOF
 EOF
 ) > ./policies/claudiauthdb.json
 
+( cat <<EOF
+{
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cognito-idp:*"
+            ],
+            "Resource": "$userPoolArn"
+        }
+    ]
+}
+EOF
+) > ./policies/cognito-idp.json
+
 exit 0
