@@ -36,6 +36,24 @@ api.post('/login', request => {
   });
 });
 
+api.post('/refresh', request => {
+  const authData = {
+    refresh_token: request.body.refresh_token.trim()
+  };
+
+  cognitoIdentityServiceProvider.adminInitiateAuth({
+    AuthFlow: 'REFRESH_TOKEN_AUTH',
+    AuthParameters: {
+      REFRESH_TOKEN: authData.refresh_token
+    },
+    ClientId: poolData.clientId,
+    UserPoolId: poolData.id
+  }).promise().then(result => {
+    console.log(result);
+    return result.AuthenticationResult;
+  });
+});
+
 function setOptional(name, val, attrs) {
   if (val) {
     attrs.push({Name: name, Value: val.trim()});
@@ -125,6 +143,38 @@ api.post('/signup', request => {
   }).then(data => {
     console.log('create user response3', data);
     return data.AuthenticationResult;
+  });
+});
+
+api.post('/signup-confirm', request => {
+  const authData = {
+    username: request.body.username.trim(),
+    confirmationCode: request.body.confirmationCode.trim()
+  };
+  const params = {
+    ClientId: poolData.clientId,
+    Username: authData.username,
+    ConfirmationCode: authData.confirmationCode
+  };
+
+  cognitoIdentityServiceProvider.confirmSignUp(params).promise().then(result => {
+    console.log(result);
+    return result;
+  });
+});
+
+api.post('/confirm-resend', request => {
+  const authData = {
+    username: request.body.username.trim()
+  };
+  const params = {
+    ClientId: poolData.clientId,
+    Username: authData.username
+  };
+
+  cognitoIdentityServiceProvider.resendConfirmationCode(params).promise().then(result => {
+    console.log(result);
+    return result;
   });
 });
 
