@@ -39,6 +39,7 @@ appNameLowerCase=$(echo "$appName" | tr '[:upper:]' '[:lower:]')
 adminEmail=`node -p "require('./config.json').adminEmail"` 
 clientDef=`node -p "JSON.stringify(require('./config.json').clientDef)"`
 poolDef=`node -p "JSON.stringify(require('./config.json').poolDef)"`
+bucketName=cdb-$appNameLowerCase
 
 # Getting the account number for later user
 awsAccountNumber=$(aws sts get-caller-identity --output text --query 'Account')
@@ -61,14 +62,41 @@ userPoolClientId=$(grep -E '"ClientId":' /tmp/${appName}-create-user-pool-client
 
 echo "Created: $userPoolArn $userPoolClientId"
 
+# creating app storage, don't care if failure or already exists
+aws s3 mb s3://$bucketName/ --region $region || true
+
+# write config
 ( cat <<EOF
 {
     "env": "$env",
     "region": "$region",
     "userPoolId": "$userPoolId",
-    "userPoolClientId": "$userPoolClientId"
+    "userPoolClientId": "$userPoolClientId",
+    "bucketName": "$bucketName"
 }
 EOF
 ) > .env.$env.json
+
+# write default policy for all lambda functions
+( cat <<EOF
+{
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "s3:ListAllMyBuckets",
+            "Resource": "arn:aws:s3:::*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "s3:*",
+            "Resource": [
+                "arn:aws:s3:::$bucketName",
+                "arn:aws:s3:::$bucketName/*"
+            ]
+        }
+    ]
+}
+EOF
+) > ./policies/claudiauthdb.json
 
 exit 0

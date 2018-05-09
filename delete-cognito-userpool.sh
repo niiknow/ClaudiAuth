@@ -36,6 +36,7 @@ env=`node -p "require('./config.json').env"`
 region=`node -p "require('./config.json').region"`
 userPoolId=`node -p "require('./.env.$env.json').userPoolId"`
 userPoolClientId=`node -p "require('./.env.$env.json').userPoolClientId"`
+bucketName=`node -p "require('./.env.$env.json').bucketName"`
 
 # Getting the account number for later user
 awsAccountNumber=$(aws sts get-caller-identity --output text --query 'Account')
@@ -47,5 +48,8 @@ aws cognito-idp delete-user-pool --user-pool-id $userPoolId --region $region
 
 userPoolArn="arn:aws:cognito-idp:$region:$awsAccountNumber:userpool/$userPoolId"
 echo "Deleted: $userPoolArn $userPoolClientId"
+
+# deleting app storage, don't care if failure or already exists
+aws s3api delete-bucket --bucket $bucketName --region $region || true
 
 exit 0
