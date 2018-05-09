@@ -60,5 +60,5 @@ typings/
 # ignore config
 .env.**.*
 .DS_Store
-policies/
+aws-default-policies/
 
