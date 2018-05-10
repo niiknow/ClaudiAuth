@@ -11,5 +11,17 @@ export default {
   },
   uuidEmail: email => {
     return uuidv5(email, 'email');
+  },
+  isRank: (auth, checkRank = 'adm') => {
+    const rank = auth.claims['custom:rank'];
+    return (rank && rank === checkRank);
+  },
+  fail: data => {
+    data.success = false;
+    return data;
+  },
+  success: data => {
+    data.success = true;
+    return data;
   }
 };

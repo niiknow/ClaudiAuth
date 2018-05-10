@@ -52,6 +52,10 @@ aws cognito-idp admin-create-user --region $region --cli-input-json '
     {
         "Name": "custom:uid",
         "Value": "$USERNAME"
+    },
+    {
+        "Name": "custom:rank",
+        "Value": "adm"
     }
   ],
   "TemporaryPassword": "$PASSWORD"
