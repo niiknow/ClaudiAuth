@@ -12,9 +12,9 @@
 ## Goal/Tasks
 - [x] cognito user pool create and removal script
 - [x] proxy cognito user pool as generic Auth API
-- [] proxy cognito user pool as generic Users API
-- [] create generic SAAS architecture API: teams, projects, and tasks.
-- [] provide direction for enhancement such as: two-factor auth, having more than 1000 users, having more than 1000 projects/tasks/etc...
+- [ ] proxy cognito user pool as generic Users API
+- [ ] create generic SAAS architecture API: teams, projects, and tasks.
+- [ ] provide direction for enhancement such as: two-factor auth, having more than 1000 users, having more than 1000 projects/tasks/etc...
 
 # Architecture Design
 * A User belongs to many Teams
