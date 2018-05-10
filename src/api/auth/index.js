@@ -68,7 +68,7 @@ api.post('/login-next', request => {
     challenge_parameters: request.body.challenge_parameters.trim(),
     username: request.body.username.trim(),
     password: request.body.password.trim(),
-    session: request.body.session.trim(),
+    session: request.body.session.trim()
   };
   const rsp = {success: false};
 
