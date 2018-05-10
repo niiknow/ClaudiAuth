@@ -21,7 +21,9 @@
           "properties": "never"
         }
       ],
-      "ava/prefer-async-await": 0
+      "ava/prefer-async-await": 0,
+      "promise/prefer-await-to-then": "off",
+      "promise/prefer-await-to-callbacks": "off"
     }
   },
   "ava": {

@@ -9,5 +9,5 @@ api.post('/test/{id}', request => {
   const data = request.context.authorizer;
   console.log(JSON.stringify(data, 2));
 
-  return { id: request.pathParams.id };
+  return {id: request.pathParams.id};
 });
