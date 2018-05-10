@@ -9,11 +9,11 @@ test.beforeEach(t => {
 test('hello', t => {
   return m.proxyRouter({
     requestContext: {
-      resourcePath: '/Create',
+      resourcePath: '/hello',
       httpMethod: 'POST'
     },
     pathParameters: {
-      id: '1234_asdf'
+      id: 'world'
     }
   }, t.context).then(() => {
     return t.true(t.context.done.calledOnce);

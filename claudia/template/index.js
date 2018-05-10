@@ -1,17 +1,13 @@
 const ApiBuilder = require('claudia-api-builder');
-const AWS = require('aws-sdk');
-const uuidv5 = require('uuid/v5');
 
 const api = new ApiBuilder();
-const cognitoIdentityServiceProvider = process.env.cogidsp_mock || new AWS.CognitoIdentityServiceProvider();
-const poolData = {
-  id: process.env.userPoolId,
-  clientId: process.env.userPoolClientId
-};
 
-AWS.config.region = process.env.region;
+module.exports = api;
 
 // list existing shopping lists for a profile id
-api.post('/Create', request => {
-  return { id: request.id };
+api.post('/test/{id}', request => {
+  const data = request.context.authorizer;
+  console.log(JSON.stringify(data, 2));
+
+  return { id: request.pathParams.id };
 });
