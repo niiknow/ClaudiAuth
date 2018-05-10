@@ -1,12 +1,11 @@
 # ClaudiAuth
- This project start as a mean to gain deeper understanding of AWS Cognito User Pool API/SDK.  It can also be use as a Authentication starter project.
+Originally created to learn AWS Cognito User Pool API/SDK.  It can be use as a Authentication Starter Project.
 
 ## Tech Stack
-* AWS CLI
 * NodeJS
-* ClaudiaJS
+* AWS CLI
 * Cognito User Pool
-* AWS Lambda + API Gateway as micro service
+* ClaudiaJS: AWS Lambda + API Gateway as micro service
 * AWS S3 as backend storage
 
 ## Goal/Tasks
@@ -52,7 +51,7 @@ Task was provided as an example, but you can create additional micro-service API
 * Install required tech stack
   1. NodeJS - https://nodejs.org/en/download/
   2. AWS CLI - https://docs.aws.amazon.com/cli/latest/userguide/installing.html and configure https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
-* Initialize AWS Cognito User Pool with script under own [aws] (https://github.com/niiknow/ClaudiAuth/tree/master/aws) folder.
+* Initialize AWS Cognito User Pool with script under own [aws](https://github.com/niiknow/ClaudiAuth/tree/master/aws) folder.
 * Deploy Auth and Users APIs
 * Deploy other APIs
 
