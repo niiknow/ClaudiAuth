@@ -91,18 +91,17 @@ function setOptional(name, val, attrs) {
 api.post('/signup', request => {
   const customFields = ['address2', 'city', 'state', 'postal', 'country',
     'is_retired', 'occupation', 'employer', 'email_list_optin_at',
-    'pay_type', 'pay_customer_id', 'pay_brand', 'pay_last4',
-    'pay_exp_month', 'pay_exp_year'];
+    'pay_type', 'pay_cid', 'pay_brand', 'pay_last4',
+    'pay_xmonth', 'pay_xyear'];
   let {email, password} = request.body;
 
   password = password.trim();
   email = email.toLowerCase().trim();
-  const username = helper.uuidEmail(email);
 
   // setup required attributes
   const createUserParams = {
     ClientId: helper.poolData.clientId,
-    Username: username,
+    Username: email,
     Password: password,
     UserAttributes: [
       {
@@ -116,6 +115,10 @@ api.post('/signup', request => {
       {
         Name: 'email',
         Value: email
+      },
+      {
+        Name: 'custom:uid',
+        Value: helper.uuidEmail(email)
       }
     ]
   };
@@ -129,9 +132,6 @@ api.post('/signup', request => {
   setOptional('picture', request.body.picture, createUserParams.UserAttributes);
   setOptional('profile', request.body.profile, createUserParams.UserAttributes);
   setOptional('timezone', request.body.timezone, createUserParams.UserAttributes);
-
-  // we set this up earlier as AliasAttributes
-  setOptional('preferred_username', email, createUserParams.UserAttributes);
 
   // set custom fields
   customFields.forEach(k => {

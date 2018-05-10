@@ -19,7 +19,7 @@
       "AllowAdminCreateUserOnly": false,
 		  "UnusedAccountValidityDays": 120
     },
-    "AliasAttributes": ["preferred_username"],
+    "AliasAttributes": ["email"],
     "UserPoolTags": {
       "ClaudiAuth": "App"
     },
@@ -129,7 +129,7 @@
         "Mutable": true
       },
       {
-        "Name": "pay_exp_month",
+        "Name": "pay_xmonth",
         "NumberAttributeConstraints": {
               "MaxValue": "12",
               "MinValue": "1"
@@ -140,7 +140,7 @@
         "Mutable": true
       },
       {
-        "Name": "pay_exp_year",
+        "Name": "pay_xyear",
         "NumberAttributeConstraints": {
               "MaxValue": "9999",
               "MinValue": "2010"
@@ -184,6 +184,16 @@
         },
         "DeveloperOnlyAttribute": false,
         "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "uid",
+        "StringAttributeConstraints": {
+            "MaxLength": "100"
+        },
+        "DeveloperOnlyAttribute": false,
+        "Required": true,
         "AttributeDataType": "String",
         "Mutable": true
       }

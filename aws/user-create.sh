@@ -38,6 +38,8 @@ aws cognito-idp admin-create-user --region $region --cli-input-json '
 {
   "UserPoolId": "$userPoolId",
   "Username": "$USERNAME",
+  "MessageAction": "SUPPRESS",
+  "ForceAliasCreation": false,
   "UserAttributes": [
     {
         "Name": "email",
@@ -46,8 +48,17 @@ aws cognito-idp admin-create-user --region $region --cli-input-json '
     {
         "Name": "custom:teams",
         "Value": "x,y,z"
+    },
+    {
+        "Name": "custom:uid",
+        "Value": "$USERNAME"
     }
   ],
-  "TemporaryPassword": "$PASSWORD",
-  "ForceAliasCreation": true
+  "TemporaryPassword": "$PASSWORD"
+}'
+
+aws cognito-idp admin-enable-user --region $region --cli-input-json '
+{
+  "UserPoolId": "$userPoolId",
+  "Username": "$USERNAME"
 }'
