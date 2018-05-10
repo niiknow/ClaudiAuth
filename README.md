@@ -1,5 +1,5 @@
 # ClaudiAuth
-Originally created to learn AWS Cognito User Pool API/SDK.  It can be use as a Authentication Starter Project.
+Originally created to learn AWS Cognito User Pool API/SDK.  It is designed to be use as simple as Authentication Starter project or as complex as required, such as a Saas Product.
 
 ## Tech Stack
 * NodeJS
