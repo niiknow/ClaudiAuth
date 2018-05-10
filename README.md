@@ -1,5 +1,5 @@
 # ClaudiAuth
-This repo can be use as simple as Authentication Starter Project or as complex as your use-case required, such as a multi-tenant Saas Product.
+This repo can be use simply as an Authentication Starter Project or as complex as your use-case required, such as a multi-tenant Saas Product.
 
 ## Tech Stack
 * NodeJS
