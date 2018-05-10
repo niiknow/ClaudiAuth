@@ -3,7 +3,7 @@
 # Creates a new user pool and client with minimal policies and attributes
 # (ie, use for authentication only, no authorization or profile tracking).
 #
-#   cognite-create-userpool.sh
+#   cognite-init-userpool.sh
 #
 #
 

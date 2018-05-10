@@ -15,7 +15,7 @@ This repo can be use simply as an Authentication Starter Project or as complex a
 - [ ] create generic SAAS architecture API: teams, projects, and tasks.
 - [ ] provide direction for enhancement such as: two-factor auth, having more than 1000 users, having more than 1000 projects/tasks/etc...
 - [ ] create front-end starter
-- [ ] create duplicate API with Laravel PHP to demonstrate front-end starter work with both hosted on Lambda and on any platform including PHP
+- [ ] create duplicate API with Laravel PHP to demonstrate front-end starter work with both hosted on Lambda and on any platform starting with PHP
 
 # Architecture Design
 * A User belongs to many Teams

@@ -27,16 +27,16 @@ if [ ! -f config.json ]; then
 fi
 
 # Read other configuration from config.json
-cliProfile=`node -p "require('./config.json').cliProfile"` 
+cliProfile=`node -p "require('./config.json').cliProfile"`
 if [[ $? == 0 ]]; then
   echo "Setting session CLI profile to $cliProfile"
   export AWS_DEFAULT_PROFILE=$cliProfile
 fi
 env=`node -p "require('./config.json').env"`
 region=`node -p "require('./config.json').region"`
-userPoolId=`node -p "require('./.env.$env.json').userPoolId"`
-userPoolClientId=`node -p "require('./.env.$env.json').userPoolClientId"`
-bucketName=`node -p "require('./.env.$env.json').bucketName"`
+userPoolId=`node -p "require('../.env.$env.json').userPoolId"`
+userPoolClientId=`node -p "require('../.env.$env.json').userPoolClientId"`
+bucketName=`node -p "require('../.env.$env.json').bucketName"`
 
 # Getting the account number for later user
 awsAccountNumber=$(aws sts get-caller-identity --output text --query 'Account')
