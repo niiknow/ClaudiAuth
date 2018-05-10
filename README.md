@@ -48,6 +48,14 @@ Task was provided as an example, but you can create additional micro-service API
 * Project->SubscriberLists - email/texting list
 * Project->Pages - cloud CMS
 
+# Getting Started
+* Install required tech stack
+  1. NodeJS - https://nodejs.org/en/download/
+  2. AWS CLI - https://docs.aws.amazon.com/cli/latest/userguide/installing.html and configure https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
+* Initialize AWS Cognito User Pool with script under own [aws] (https://github.com/niiknow/ClaudiAuth/tree/master/aws) folder.
+* Deploy Auth and Users APIs
+* Deploy other APIs
+
 # Resource
 https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html
 
