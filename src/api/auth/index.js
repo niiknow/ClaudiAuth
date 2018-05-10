@@ -3,7 +3,7 @@ const AWS = require('aws-sdk');
 const uuidv5 = require('uuid/v5');
 
 const api = new ApiBuilder();
-const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
+const cognitoIdentityServiceProvider = process.env.cogidsp_mock || new AWS.CognitoIdentityServiceProvider();
 const poolData = {
   id: process.env.userPoolId,
   clientId: process.env.userPoolClientId
@@ -15,6 +15,23 @@ module.exports = api;
 // references:
 // https://docs.aws.amazon.com/cognito/latest/developerguide/using-amazon-cognito-user-identity-pools-javascript-examples.html
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CognitoIdentityServiceProvider.html
+
+function translateAuthenticationResult(result) {
+  if (result && result.AuthenticationResult && result.AuthenticationResult.IdToken) {
+    const rst = result.AuthenticationResult;
+
+    return {
+      success: true,
+      access_token: rst.IdToken,
+      backup_token: rst.AccessToken,
+      refresh_token: rst.RefreshToken,
+      expires_in: rst.ExpiresIn,
+      token_type: rst.TokenType
+    };
+  }
+
+  return {success: false};
+}
 
 api.post('/login', request => {
   const authData = {
@@ -31,8 +48,8 @@ api.post('/login', request => {
     ClientId: poolData.clientId,
     UserPoolId: poolData.id
   }).promise().then(result => {
-    console.log(result);
-    return result.AuthenticationResult;
+    console.log('login result', result);
+    return translateAuthenticationResult(result);
   });
 });
 
@@ -49,8 +66,8 @@ api.post('/refresh', request => {
     ClientId: poolData.clientId,
     UserPoolId: poolData.id
   }).promise().then(result => {
-    console.log(result);
-    return result.AuthenticationResult;
+    console.log('refresh result', result);
+    return translateAuthenticationResult(result);
   });
 });
 
@@ -73,11 +90,9 @@ api.post('/signup', request => {
 
   // setup required attributes
   const createUserParams = {
-    UserPoolId: poolData.id,
+    ClientId: poolData.clientId,
     Username: username,
-    ForceAliasCreation: false,
-    MessageAction: 'SUPPRESS',
-    TemporaryPassword: password,
+    Password: password,
     UserAttributes: [
       {
         Name: 'given_name',
@@ -111,38 +126,9 @@ api.post('/signup', request => {
   customFields.forEach(k => {
     setOptional(`custom:${k}`, request.body[k], createUserParams.UserAttributes);
   });
-
-  return cognitoIdentityServiceProvider.adminCreateUser(createUserParams).promise().then(data => {
-    console.log('create user response1', data);
-    const authRequest = {
-      AuthFlow: 'ADMIN_NO_SRP_AUTH',
-      AuthParameters: {
-        USERNAME: username,
-        PASSWORD: password
-      },
-      ClientId: poolData.clientId,
-      UserPoolId: poolData.id
-    };
-
-    return cognitoIdentityServiceProvider.adminInitiateAuth(authRequest).promise();
-  }).then(data => {
-    console.log('create user response2', data);
-    if (data.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
-      const challengeRequest = {
-        ChallengeName: 'NEW_PASSWORD_REQUIRED',
-        ChallengeResponses: {
-          USERNAME: data.ChallengeParameters.USER_ID_FOR_SRP || username,
-          NEW_PASSWORD: password
-        },
-        Session: data.Session,
-        ClientId: poolData.clientId,
-        UserPoolId: poolData.id
-      };
-      return cognitoIdentityServiceProvider.adminRespondToAuthChallenge(challengeRequest).promise();
-    }
-  }).then(data => {
-    console.log('create user response3', data);
-    return data.AuthenticationResult;
+  cognitoIdentityServiceProvider.signUp(createUserParams).promise().then(result => {
+    console.log('signup result', result);
+    return result;
   });
 });
 
