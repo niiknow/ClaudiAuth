@@ -1,63 +1,37 @@
 const ApiBuilder = require('claudia-api-builder');
-const AWS = require('aws-sdk');
-const uuidv5 = require('uuid/v5');
+const helper = require('./helper');
 
 const api = new ApiBuilder();
-const cognitoIdentityServiceProvider = process.env.cogidsp_mock || new AWS.CognitoIdentityServiceProvider();
-const poolData = {
-  id: process.env.userPoolId,
-  clientId: process.env.userPoolClientId
-};
-
-AWS.config.region = process.env.region;
 
 module.exports = api;
 // references:
 // https://docs.aws.amazon.com/cognito/latest/developerguide/using-amazon-cognito-user-identity-pools-javascript-examples.html
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CognitoIdentityServiceProvider.html
 
-function translateAuthenticationResult(result) {
-  const rsp = {success: false};
-
-  if (result) {
-    if (result.AuthenticationResult && result.AuthenticationResult.IdToken) {
-      const rst = result.AuthenticationResult;
-      rsp.success = true;
-      rsp.access_token = rst.IdToken;
-      rsp.backup_token = rst.AccessToken;
-      rsp.refresh_token = rst.RefreshToken;
-      rsp.expires_in = rst.ExpiresIn;
-      rsp.token_type = rst.TokenType;
-    }
-    if (result.ChallengeName) {
-      rsp.next = {
-        challenge: result.ChallengeName,
-        challenge_parameters: result.ChallengeParameters,
-        session: result.Session
-      };
-    }
-  }
-
-  return rsp;
-}
-
 api.post('/login', request => {
   const authData = {
     username: request.body.username.trim(),
-    password: request.body.password.trim()
+    password: request.body.password.trim(),
+    secure: request.body.secure,
+    authFlow: 'ADMIN_NO_SRP_AUTH'
   };
 
-  cognitoIdentityServiceProvider.adminInitiateAuth({
+  // change this to enable two factor auth/login-next flow
+  if (authData.secure) {
+    authData.AuthFlow = 'USER_PASSWORD_AUTH';
+  }
+
+  helper.cognitoIdentityServiceProvider.adminInitiateAuth({
     AuthFlow: 'ADMIN_NO_SRP_AUTH',
     AuthParameters: {
       USERNAME: authData.username,
       PASSWORD: authData.password
     },
-    ClientId: poolData.clientId,
-    UserPoolId: poolData.id
+    ClientId: helper.poolData.clientId,
+    UserPoolId: helper.poolData.id
   }).promise().then(result => {
     console.log('login result', result);
-    return translateAuthenticationResult(result);
+    return helper.translateAuthResult(result);
   });
 });
 
@@ -81,10 +55,10 @@ api.post('/login-next', request => {
         NEW_PASSWORD: authData.password
       },
       Session: authData.session,
-      ClientId: poolData.clientId,
-      UserPoolId: poolData.id
+      ClientId: helper.poolData.clientId,
+      UserPoolId: helper.poolData.id
     };
-    return cognitoIdentityServiceProvider.adminRespondToAuthChallenge(challengeRequest).promise();
+    return helper.cognitoIdentityServiceProvider.adminRespondToAuthChallenge(challengeRequest).promise();
   }
 
   return rsp;
@@ -95,16 +69,16 @@ api.post('/refresh', request => {
     refresh_token: request.body.refresh_token.trim()
   };
 
-  cognitoIdentityServiceProvider.adminInitiateAuth({
+  helper.cognitoIdentityServiceProvider.adminInitiateAuth({
     AuthFlow: 'REFRESH_TOKEN_AUTH',
     AuthParameters: {
       REFRESH_TOKEN: authData.refresh_token
     },
-    ClientId: poolData.clientId,
-    UserPoolId: poolData.id
+    ClientId: helper.poolData.clientId,
+    UserPoolId: helper.poolData.id
   }).promise().then(result => {
     console.log('refresh result', result);
-    return translateAuthenticationResult(result);
+    return helper.translateAuthResult(result);
   });
 });
 
@@ -123,11 +97,11 @@ api.post('/signup', request => {
 
   password = password.trim();
   email = email.toLowerCase().trim();
-  const username = uuidv5(email, 'email');
+  const username = helper.uuidEmail(email);
 
   // setup required attributes
   const createUserParams = {
-    ClientId: poolData.clientId,
+    ClientId: helper.poolData.clientId,
     Username: username,
     Password: password,
     UserAttributes: [
@@ -163,7 +137,7 @@ api.post('/signup', request => {
   customFields.forEach(k => {
     setOptional(`custom:${k}`, request.body[k], createUserParams.UserAttributes);
   });
-  cognitoIdentityServiceProvider.signUp(createUserParams).promise().then(result => {
+  helper.cognitoIdentityServiceProvider.signUp(createUserParams).promise().then(result => {
     console.log('signup result', result);
     return result;
   });
@@ -175,12 +149,12 @@ api.post('/signup-confirm', request => {
     confirmationCode: request.body.confirmationCode.trim()
   };
   const params = {
-    ClientId: poolData.clientId,
+    ClientId: helper.poolData.clientId,
     Username: authData.username,
     ConfirmationCode: authData.confirmationCode
   };
 
-  cognitoIdentityServiceProvider.confirmSignUp(params).promise().then(result => {
+  helper.cognitoIdentityServiceProvider.confirmSignUp(params).promise().then(result => {
     console.log(result);
     return result;
   });
@@ -191,11 +165,11 @@ api.post('/confirm-resend', request => {
     username: request.body.username.trim()
   };
   const params = {
-    ClientId: poolData.clientId,
+    ClientId: helper.poolData.clientId,
     Username: authData.username
   };
 
-  cognitoIdentityServiceProvider.resendConfirmationCode(params).promise().then(result => {
+  helper.cognitoIdentityServiceProvider.resendConfirmationCode(params).promise().then(result => {
     console.log(result);
     return result;
   });
@@ -213,7 +187,7 @@ api.post('/change-pw', request => {
     AccessToken: authData.token
   };
 
-  cognitoIdentityServiceProvider.changePassword(params).promise().then(result => {
+  helper.cognitoIdentityServiceProvider.changePassword(params).promise().then(result => {
     console.log(result);
     return result;
   });
@@ -224,11 +198,11 @@ api.post('/forgot-pw', request => {
     username: request.body.username.trim()
   };
   const params = {
-    ClientId: poolData.clientId,
+    ClientId: helper.poolData.clientId,
     Username: authData.username
   };
 
-  cognitoIdentityServiceProvider.forgotPassword(params).promise().then(result => {
+  helper.cognitoIdentityServiceProvider.forgotPassword(params).promise().then(result => {
     console.log(result);
     return result;
   });
@@ -241,13 +215,13 @@ api.post('/forgot-pw-confirm', request => {
     password: request.body.password.trim()
   };
   const params = {
-    ClientId: poolData.clientId,
+    ClientId: helper.poolData.clientId,
     Username: authData.username,
     ConfirmationCode: authData.confirmationCode,
     Password: authData.password
   };
 
-  cognitoIdentityServiceProvider.confirmForgotPassword(params).promise().then(result => {
+  helper.cognitoIdentityServiceProvider.confirmForgotPassword(params).promise().then(result => {
     console.log(result);
     return result;
   });

@@ -75,7 +75,7 @@ aws s3 mb s3://$bucketName/ --region $region || true
     "bucketName": "$bucketName"
 }
 EOF
-) > .env.$env.json
+) > ../.env.$env.json
 
 # write default policy for all lambda functions
 ( cat <<EOF
@@ -97,7 +97,7 @@ EOF
     ]
 }
 EOF
-) > ./aws-default-policies/claudiauthdb.json
+) > ./default-policies/claudiauthdb.json
 
 ( cat <<EOF
 {
@@ -119,6 +119,6 @@ EOF
     ]
 }
 EOF
-) > ./aws-default-policies/cognito-idp.json
+) > ./default-policies/cognito-idp.json
 
 exit 0

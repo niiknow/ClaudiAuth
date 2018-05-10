@@ -140,7 +140,7 @@
         "Mutable": true
       },
       {
-        "Name": "card_exp_year",
+        "Name": "pay_exp_year",
         "NumberAttributeConstraints": {
               "MaxValue": "9999",
               "MinValue": "2010"
@@ -151,7 +151,7 @@
         "Mutable": true
       },
       {
-        "Name": "pay_customer_id",
+        "Name": "pay_cid",
         "StringAttributeConstraints": {
             "MaxLength": "250"
         },
@@ -172,6 +172,16 @@
       },
       {
         "Name": "teams",
+        "DeveloperOnlyAttribute": false,
+        "Required": false,
+        "AttributeDataType": "String",
+        "Mutable": true
+      },
+      {
+        "Name": "rank",
+        "StringAttributeConstraints": {
+            "MaxLength": "50"
+        },
         "DeveloperOnlyAttribute": false,
         "Required": false,
         "AttributeDataType": "String",

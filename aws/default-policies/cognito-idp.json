@@ -5,14 +5,14 @@
             "Action": [
                 "cognito-idp:ListUsers"
             ],
-            "Resource": "arn:aws:cognito-idp:us-west-2:698232590813:userpool/us-west-2_pYnYOoAzb"
+            "Resource": "arn:aws:cognito-idp:us-west-2:xxx:userpool/us-west-2xxx"
         },
         {
             "Effect": "Allow",
             "Action": [
                 "cognito-idp:*"
             ],
-            "Resource": "arn:aws:cognito-idp:us-west-2:698232590813:userpool/us-west-2_pYnYOoAzb"
+            "Resource": "arn:aws:cognito-idp:us-west-2:xxx:userpool/us-west-2xxx"
         }
     ]
 }
