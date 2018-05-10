@@ -17,20 +17,28 @@ module.exports = api;
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CognitoIdentityServiceProvider.html
 
 function translateAuthenticationResult(result) {
-  if (result && result.AuthenticationResult && result.AuthenticationResult.IdToken) {
-    const rst = result.AuthenticationResult;
+  const rsp = {success: false};
 
-    return {
-      success: true,
-      access_token: rst.IdToken,
-      backup_token: rst.AccessToken,
-      refresh_token: rst.RefreshToken,
-      expires_in: rst.ExpiresIn,
-      token_type: rst.TokenType
-    };
+  if (result) {
+    if (result.AuthenticationResult && result.AuthenticationResult.IdToken) {
+      const rst = result.AuthenticationResult;
+      rsp.success = true;
+      rsp.access_token = rst.IdToken;
+      rsp.backup_token = rst.AccessToken;
+      rsp.refresh_token = rst.RefreshToken;
+      rsp.expires_in = rst.ExpiresIn;
+      rsp.token_type = rst.TokenType;
+    }
+    if (result.ChallengeName) {
+      rsp.next = {
+        challenge: result.ChallengeName,
+        challenge_parameters: result.ChallengeParameters,
+        session: result.Session
+      };
+    }
   }
 
-  return {success: false};
+  return rsp;
 }
 
 api.post('/login', request => {
@@ -51,6 +59,35 @@ api.post('/login', request => {
     console.log('login result', result);
     return translateAuthenticationResult(result);
   });
+});
+
+api.post('/login-next', request => {
+  // request.context.authorizer.claims['custom:teams']
+  const authData = {
+    challenge: request.body.challenge.trim(),
+    challenge_parameters: request.body.challenge_parameters.trim(),
+    username: request.body.username.trim(),
+    password: request.body.password.trim(),
+    session: request.body.session.trim(),
+  };
+  const rsp = {success: false};
+
+  // see: https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminInitiateAuth.html
+  if (authData.challenge === 'NEW_PASSWORD_REQUIRED') {
+    const challengeRequest = {
+      ChallengeName: authData.challenge,
+      ChallengeResponses: {
+        USERNAME: authData.challenge_parameters.USER_ID_FOR_SRP || authData.username,
+        NEW_PASSWORD: authData.password
+      },
+      Session: authData.session,
+      ClientId: poolData.clientId,
+      UserPoolId: poolData.id
+    };
+    return cognitoIdentityServiceProvider.adminRespondToAuthChallenge(challengeRequest).promise();
+  }
+
+  return rsp;
 });
 
 api.post('/refresh', request => {
