@@ -30,38 +30,7 @@ api.post('/login', req => {
     },
     ClientId: helper.poolData.clientId,
     UserPoolId: helper.poolData.id
-  }).promise().then(result => {
-    console.log('login result', result);
-    return helper.translateAuthResult(result);
-  });
-});
-
-api.post('/login-next', req => {
-  const authData = {
-    challenge: req.body.challenge.trim(),
-    challenge_parameters: req.body.challenge_parameters.trim(),
-    username: req.body.username.trim(),
-    password: req.body.password.trim(),
-    session: req.body.session.trim()
-  };
-  const rsp = {success: false};
-
-  // see: https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminInitiateAuth.html
-  if (authData.challenge === 'NEW_PASSWORD_REQUIRED') {
-    const challengeRequest = {
-      ChallengeName: authData.challenge,
-      ChallengeResponses: {
-        USERNAME: authData.challenge_parameters.USER_ID_FOR_SRP || authData.username,
-        NEW_PASSWORD: authData.password
-      },
-      Session: authData.session,
-      ClientId: helper.poolData.clientId,
-      UserPoolId: helper.poolData.id
-    };
-    return helper.cognitoIdentityServiceProvider.adminRespondToAuthChallenge(challengeRequest).promise();
-  }
-
-  return rsp;
+  }).promise().then(helper.translateAuthResult);
 });
 
 api.post('/refresh', req => {
@@ -80,10 +49,7 @@ api.post('/refresh', req => {
     },
     ClientId: helper.poolData.clientId,
     UserPoolId: helper.poolData.id
-  }).promise().then(result => {
-    console.log('refresh result', result);
-    return helper.translateAuthResult(result);
-  });
+  }).promise().then(helper.translateAuthResult);
 });
 
 api.post('/signup', req => {
@@ -118,18 +84,17 @@ api.post('/signup', req => {
       params.UserAttributes.push({
         Name: `custom:${k}`,
         Value: result.value[k]
-      })
+      });
     } else {
       params.UserAttributes.push({
         Name: k,
         Value: result.value[k]
-      })
+      });
     }
   }
 
   helper.cognitoIdentityServiceProvider.signUp(params).promise().then(result => {
-    console.log('signup result', result);
-    return result;
+    return helper.success(result);
   });
 });
 
@@ -149,10 +114,8 @@ api.post('/signup-confirm', req => {
     ConfirmationCode: result.value.confirmationCode
   };
 
-  helper.cognitoIdentityServiceProvider.confirmSignUp(params).promise().then(result => {
-    console.log(result);
-    return result;
-  });
+  helper.cognitoIdentityServiceProvider.confirmSignUp(params).promise()
+    .then(helper.success).catch(helper.fail);
 });
 
 api.post('/confirm-resend', req => {
@@ -169,10 +132,8 @@ api.post('/confirm-resend', req => {
     Username: result.value.email
   };
 
-  helper.cognitoIdentityServiceProvider.resendConfirmationCode(params).promise().then(result => {
-    console.log(result);
-    return result;
-  });
+  helper.cognitoIdentityServiceProvider.resendConfirmationCode(params).promise()
+    .then(helper.success).catch(helper.fail);
 });
 
 api.post('/change-pw', req => {
@@ -192,10 +153,8 @@ api.post('/change-pw', req => {
     AccessToken: result.value.token
   };
 
-  helper.cognitoIdentityServiceProvider.changePassword(params).promise().then(result => {
-    console.log(result);
-    return result;
-  });
+  helper.cognitoIdentityServiceProvider.changePassword(params).promise()
+    .then(helper.success).catch(helper.fail);
 });
 
 api.post('/forgot-pw', req => {
@@ -212,10 +171,8 @@ api.post('/forgot-pw', req => {
     Username: result.value.email
   };
 
-  helper.cognitoIdentityServiceProvider.forgotPassword(params).promise().then(result => {
-    console.log(result);
-    return result;
-  });
+  helper.cognitoIdentityServiceProvider.forgotPassword(params).promise()
+    .then(helper.success).catch(helper.fail);
 });
 
 api.post('/forgot-pw-confirm', req => {
@@ -236,8 +193,6 @@ api.post('/forgot-pw-confirm', req => {
     Password: result.value.password
   };
 
-  helper.cognitoIdentityServiceProvider.confirmForgotPassword(params).promise().then(result => {
-    console.log(result);
-    return result;
-  });
+  helper.cognitoIdentityServiceProvider.confirmForgotPassword(params).promise()
+    .then(helper.success).catch(helper.fail);
 });

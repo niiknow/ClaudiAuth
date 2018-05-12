@@ -1,6 +1,6 @@
-import Joi from 'joi';
+const Joi = require('joi');
 
-export default {
+const schema = {
   schema: {
     given_name: Joi.string().trim().required(),
     middle_name: Joi.string().trim(),
@@ -24,7 +24,7 @@ export default {
     picture: Joi.string().trim(),
     profile: Joi.string().trim(),
     timezone: Joi.string().trim(),
-    is_retired: Joi.string().trim(),
+    is_retired: Joi.boolean(),
     occupation: Joi.string().trim(),
     employer: Joi.string().trim(),
     email_list_optin_at: Joi.string().trim(),
@@ -43,3 +43,4 @@ export default {
   ]
 };
 
+module.exports = schema;

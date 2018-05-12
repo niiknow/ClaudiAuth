@@ -35,7 +35,7 @@ const helper = {
     clientId: process.env.userPoolClientId
   },
   uuidEmail: email => {
-    return uuidv5(email, 'email');
+    return uuidv5(email, '24ccd1e9-9951-4dd7-bb8c-84fe063702d1');
   },
   isRank: (auth, checkRank = 'adm') => {
     const rank = auth.claims['custom:rank'];
