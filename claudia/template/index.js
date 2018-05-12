@@ -26,8 +26,7 @@ api.post('/create', req => {
 
   // validate
   const result = Joi.validate(req.body, {
-    name: Joi.string().min(1).max(100).trim().required(),
-    desc: Joi.string().min(1).max(2000).trim().required()
+    name: Joi.string().min(1).max(100).trim().required()
   });
   if (result.error) {
     return helper.fail(result);
@@ -48,7 +47,7 @@ api.get('/retrieve/{id}', req => {
 
   // validate
   const result = Joi.validate(req.pathParams, {
-    id: Joi.string().trim().require()
+    id: Joi.string().trim().required()
   });
   if (result.error) {
     return helper.fail(result);
@@ -62,7 +61,7 @@ api.get('/retrieve/{id}', req => {
   return storage.retrieve(result.value.id);
 });
 
-api.post('/update/{id}', req => {
+api.post('/update', req => {
   const auth = req.context.authorizer;
   const storage = helper.getStorage('s3', 'template');
   // console.log(JSON.stringify(auth, 2));
@@ -70,8 +69,7 @@ api.post('/update/{id}', req => {
   // validate
   const result = Joi.validate(req.body, {
     id: Joi.string().min(1).max(100).trim().required(),
-    name: Joi.string().min(1).max(100).trim().required(),
-    desc: Joi.string().min(1).max(2000).trim().required()
+    name: Joi.string().min(1).max(100).trim().required()
   });
   if (result.error) {
     return helper.fail(result);
@@ -103,5 +101,5 @@ api.post('/delete/{id}', req => {
     return helper.fail({message: 'Access is denied.'});
   }
 
-  return storage.update(result.value.id);
+  return storage.delete(result.value.id);
 });
