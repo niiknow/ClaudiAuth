@@ -1,35 +1,11 @@
 import test from 'ava';
 import sinon from 'sinon';
-import helper from './lib/helper';
 import m from '.';
 
 test.beforeEach(t => {
   t.context.done = sinon.spy();
 });
 
-test('list', t => {
-  const helperMock = sinon.mock(helper);
-  let a = false;
-  helperMock.expects('getStorage').withArgs('s3', 'teams').returns({
-    list: () => {
-      a = true;
-    }
-  });
-
-  return m.proxyRouter({
-    requestContext: {
-      resourcePath: '/list',
-      httpMethod: 'POST',
-      authorizer: {claims: {'custom:rank': 'adm'}}
-    }
-  }, t.context).then(() => {
-    helperMock.restore();
-    helperMock.verify();
-    return t.true(a);
-  });
-});
-
-/*
 test('list', t => {
   return m.proxyRouter({
     requestContext: {
@@ -93,4 +69,3 @@ test('delete', t => {
     return t.true(t.context.done.calledOnce);
   });
 });
-*/

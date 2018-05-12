@@ -5,7 +5,7 @@ export default {
     given_name: Joi.string().trim().required(),
     middle_name: Joi.string().trim(),
     family_name: Joi.string().trim().required(),
-    email: Joi.string().trim().lowercase().email().required(),
+    email: Joi.string().trim().lowercase().min(5).max(200).email().required(),
     password: Joi.string().trim().min(8).max(250).required(),
     confirmPassword: Joi.string().trim().required().valid(Joi.ref('password')).options({
       language: {

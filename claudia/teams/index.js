@@ -1,14 +1,13 @@
 const ApiBuilder = require('claudia-api-builder');
-const Joi = require('joi');
-const helper = require('./lib/helper');
+const helper = require('../helper');
 
 const api = new ApiBuilder();
+const storage = helper.getStorage('s3', 'teams');
 
 module.exports = api;
 
 api.post('/list', req => {
   const auth = req.context.authorizer;
-  const storage = helper.getStorage('s3', 'teams');
   // console.log(JSON.stringify(auth, 2));
 
   // only admiral rank and user can read
@@ -21,7 +20,6 @@ api.post('/list', req => {
 
 api.post('/create', req => {
   const auth = req.context.authorizer;
-  const storage = helper.getStorage('s3', 'teams');
   // console.log(JSON.stringify(auth, 2));
 
   // validate
@@ -43,7 +41,6 @@ api.post('/create', req => {
 
 api.get('/retrieve/{id}', req => {
   const auth = req.context.authorizer;
-  const storage = helper.getStorage('s3', 'teams');
   // console.log(JSON.stringify(auth, 2));
 
   // validate
@@ -64,7 +61,6 @@ api.get('/retrieve/{id}', req => {
 
 api.post('/update/{id}', req => {
   const auth = req.context.authorizer;
-  const storage = helper.getStorage('s3', 'teams');
   // console.log(JSON.stringify(auth, 2));
 
   // validate
@@ -87,7 +83,6 @@ api.post('/update/{id}', req => {
 
 api.post('/delete/{id}', req => {
   const auth = req.context.authorizer;
-  const storage = helper.getStorage('s3', 'teams');
   // console.log(JSON.stringify(auth, 2));
 
   // validate

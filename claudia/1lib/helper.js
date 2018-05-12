@@ -1,9 +1,10 @@
 const AWS = require('aws-sdk');
 const uuidv5 = require('uuid/v5');
+const StorageS3 = require('./storages3');
 
 AWS.config.region = process.env.region;
 
-export default {
+const helper = {
   translateAuthResult: result => {
     const rsp = {success: false};
 
@@ -36,9 +37,23 @@ export default {
   uuidEmail: email => {
     return uuidv5(email, 'email');
   },
-  setOptional: (name, val, attrs) => {
-    if (val) {
-      attrs.push({Name: name, Value: val.trim()});
+  isRank: (auth, checkRank = 'adm') => {
+    const rank = auth.claims['custom:rank'];
+    return (rank && rank === checkRank);
+  },
+  fail: data => {
+    data.success = false;
+    return data;
+  },
+  success: data => {
+    data.success = true;
+    return data;
+  },
+  getStorage: (type, name) => {
+    if (type === 's3') {
+      return new StorageS3(process.env.bucketName, name);
     }
   }
 };
+
+module.exports = helper;

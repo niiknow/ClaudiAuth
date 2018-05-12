@@ -101,6 +101,10 @@ api.post('/signup', req => {
       {
         Name: 'custom:uid',
         Value: helper.uuidEmail(result.value.email)
+      },
+      {
+        Name: 'custom:rank',
+        Value: 'user'
       }
     ]
   };

@@ -62,6 +62,10 @@ api.post('/create', req => {
       {
         Name: 'custom:uid',
         Value: helper.uuidEmail(result.value.email)
+      },
+      {
+        Name: 'custom:rank',
+        Value: 'user'
       }
     ]
   };
@@ -257,7 +261,7 @@ api.post('/rank/{rank}/{email}', request => {
   // validate
   const result = Joi.validate(req.pathParams, {
     email: UserValidation.schema.email,
-    rank: Joi.string().trim().valid(['adm', 'capt', 'cdr', 'lt', 'ens', ''])
+    rank: Joi.string().trim().valid(['adm', 'capt', 'cdr', 'lt', 'ens', 'user'])
   });
   if (result.error) {
     return helper.fail(result);
@@ -273,12 +277,11 @@ api.post('/rank/{rank}/{email}', request => {
         Name: 'custom:rank',
         Value: result.value.rank
       }
-
     ]
   };
 
   helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params).promise().then(result => {
-    console.log('update result', result);
+    console.log('rank result', result);
     return result;
   });
 });
