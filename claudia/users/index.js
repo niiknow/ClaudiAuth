@@ -1,5 +1,5 @@
 const ApiBuilder = require('claudia-api-builder');
-const helper = require('../helper');
+const helper = require('./lib/helper');
 
 const api = new ApiBuilder();
 

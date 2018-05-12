@@ -9,10 +9,10 @@ test.beforeEach(t => {
 
 test('list', t => {
   const helperMock = sinon.mock(helper);
-  let a = false;
-  helperMock.expects('getStorage').withArgs('s3', 'teams').returns({
+  let actual = false;
+  helperMock.expects('getStorage').withArgs('s3', 'template').returns({
     list: () => {
-      a = true;
+      actual = true;
     }
   });
 
@@ -25,7 +25,7 @@ test('list', t => {
   }, t.context).then(() => {
     helperMock.restore();
     helperMock.verify();
-    return t.true(a);
+    return t.true(actual);
   });
 });
 

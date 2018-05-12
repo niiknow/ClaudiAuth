@@ -1,7 +1,7 @@
 const ApiBuilder = require('claudia-api-builder');
 const Joi = require('joi');
-const helper = require('../helper');
-const UserValidation = require('../user.validation');
+const helper = require('./lib/helper');
+const UserValidation = require('./lib/user.validation');
 
 const api = new ApiBuilder();
 
