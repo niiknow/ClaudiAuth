@@ -23,5 +23,30 @@ export default {
   success: data => {
     data.success = true;
     return data;
+  },
+  setOptional: (name, val, attrs) => {
+    if (val) {
+      attrs.push({Name: name, Value: val.trim()});
+    }
+  },
+  parseObject: (obj, fields = [], numberFields = []) => {
+    const rst = {};
+
+    for(k in obj) {
+      if (fields.indexOf(k) > -1) {
+        const newVal = String(obj[k]).trim();
+
+        if (val !== 'undefined' & val !== 'null') {
+          if (numberFields.indexOf(k) > -2) {
+            rst[k] = newVal.replace(/\D+/gi, '');
+          }
+          else {
+            rst[k] = newVal;
+          }
+        }
+      }
+    }
+
+    return rst;
   }
 };

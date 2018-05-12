@@ -1,5 +1,7 @@
 const ApiBuilder = require('claudia-api-builder');
-const helper = require('./helper');
+const Joi = require('joi');
+const helper = require('../helper');
+const UserValidation = require('../user.validation');
 
 const api = new ApiBuilder();
 
@@ -8,24 +10,23 @@ module.exports = api;
 // https://docs.aws.amazon.com/cognito/latest/developerguide/using-amazon-cognito-user-identity-pools-javascript-examples.html
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CognitoIdentityServiceProvider.html
 
-api.post('/login', request => {
-  const authData = {
-    username: request.body.username.trim(),
-    password: request.body.password.trim(),
-    secure: request.body.secure,
-    authFlow: 'ADMIN_NO_SRP_AUTH'
-  };
+api.post('/login', req => {
+  const authFlow = req.body.secure ? 'USER_PASSWORD_AUTH' : 'ADMIN_NO_SRP_AUTH';
 
-  // change this to enable two factor auth/login-next flow
-  if (authData.secure) {
-    authData.AuthFlow = 'USER_PASSWORD_AUTH';
+  // validate
+  const result = Joi.validate(req.body, {
+    email: UserValidation.schema.email,
+    password: Joi.string().required()
+  });
+  if (result.error) {
+    return helper.fail(result);
   }
 
   helper.cognitoIdentityServiceProvider.adminInitiateAuth({
-    AuthFlow: 'ADMIN_NO_SRP_AUTH',
+    AuthFlow: authFlow,
     AuthParameters: {
-      USERNAME: authData.username,
-      PASSWORD: authData.password
+      USERNAME: result.value.email,
+      PASSWORD: result.value.password
     },
     ClientId: helper.poolData.clientId,
     UserPoolId: helper.poolData.id
@@ -35,14 +36,13 @@ api.post('/login', request => {
   });
 });
 
-api.post('/login-next', request => {
-  // request.context.authorizer.claims['custom:teams']
+api.post('/login-next', req => {
   const authData = {
-    challenge: request.body.challenge.trim(),
-    challenge_parameters: request.body.challenge_parameters.trim(),
-    username: request.body.username.trim(),
-    password: request.body.password.trim(),
-    session: request.body.session.trim()
+    challenge: req.body.challenge.trim(),
+    challenge_parameters: req.body.challenge_parameters.trim(),
+    username: req.body.username.trim(),
+    password: req.body.password.trim(),
+    session: req.body.session.trim()
   };
   const rsp = {success: false};
 
@@ -64,15 +64,19 @@ api.post('/login-next', request => {
   return rsp;
 });
 
-api.post('/refresh', request => {
-  const authData = {
-    refresh_token: request.body.refresh_token.trim()
-  };
+api.post('/refresh', req => {
+  // validate
+  const result = Joi.validate(req.body, {
+    refresh_token: Joi.string().trim().required()
+  });
+  if (result.error) {
+    return helper.fail(result);
+  }
 
   helper.cognitoIdentityServiceProvider.adminInitiateAuth({
     AuthFlow: 'REFRESH_TOKEN_AUTH',
     AuthParameters: {
-      REFRESH_TOKEN: authData.refresh_token
+      REFRESH_TOKEN: result.value.refresh_token
     },
     ClientId: helper.poolData.clientId,
     UserPoolId: helper.poolData.id
@@ -82,76 +86,63 @@ api.post('/refresh', request => {
   });
 });
 
-function setOptional(name, val, attrs) {
-  if (val) {
-    attrs.push({Name: name, Value: val.trim()});
+api.post('/signup', req => {
+  const result = Joi.validate(req.body, UserValidation.schema);
+  if (result.error) {
+    return helper.fail(result);
   }
-}
-
-api.post('/signup', request => {
-  const customFields = ['address2', 'city', 'state', 'postal', 'country',
-    'is_retired', 'occupation', 'employer', 'email_list_optin_at',
-    'pay_type', 'pay_cid', 'pay_brand', 'pay_last4',
-    'pay_xmonth', 'pay_xyear'];
-  let {email, password} = request.body;
-
-  password = password.trim();
-  email = email.toLowerCase().trim();
 
   // setup required attributes
-  const createUserParams = {
+  const params = {
     ClientId: helper.poolData.clientId,
-    Username: email,
-    Password: password,
+    Username: result.value.email,
+    Password: result.value.password,
     UserAttributes: [
       {
-        Name: 'given_name',
-        Value: request.body.first_name
-      },
-      {
-        Name: 'family_name',
-        Value: request.body.last_name
-      },
-      {
-        Name: 'email',
-        Value: email
-      },
-      {
         Name: 'custom:uid',
-        Value: helper.uuidEmail(email)
+        Value: helper.uuidEmail(result.value.email)
       }
     ]
   };
 
-  // set internal fields that are not exact match
-  setOptional('address', request.body.address1, createUserParams.UserAttributes);
-  setOptional('phone_number', request.body.phone, createUserParams.UserAttributes);
+  for (const k in result.value) {
+    if (['password', 'confirmPassword', 'uid', 'rank'].indexOf(k) > -1) {
+      continue;
+    }
 
-  // set internal fields that are exact match
-  setOptional('middle_name', request.body.middle_name, createUserParams.UserAttributes);
-  setOptional('picture', request.body.picture, createUserParams.UserAttributes);
-  setOptional('profile', request.body.profile, createUserParams.UserAttributes);
-  setOptional('timezone', request.body.timezone, createUserParams.UserAttributes);
+    if (UserValidation.custom.indexOf(k) > -1) {
+      params.UserAttributes.push({
+        Name: `custom:${k}`,
+        Value: result.value[k]
+      })
+    } else {
+      params.UserAttributes.push({
+        Name: k,
+        Value: result.value[k]
+      })
+    }
+  }
 
-  // set custom fields
-  customFields.forEach(k => {
-    setOptional(`custom:${k}`, request.body[k], createUserParams.UserAttributes);
-  });
-  helper.cognitoIdentityServiceProvider.signUp(createUserParams).promise().then(result => {
+  helper.cognitoIdentityServiceProvider.signUp(params).promise().then(result => {
     console.log('signup result', result);
     return result;
   });
 });
 
-api.post('/signup-confirm', request => {
-  const authData = {
-    username: request.body.username.trim(),
-    confirmationCode: request.body.confirmationCode.trim()
-  };
+api.post('/signup-confirm', req => {
+  // validate
+  const result = Joi.validate(req.body, {
+    email: UserValidation.schema.email,
+    confirmationCode: Joi.string().trim().required()
+  });
+  if (result.error) {
+    return helper.fail(result);
+  }
+
   const params = {
     ClientId: helper.poolData.clientId,
-    Username: authData.username,
-    ConfirmationCode: authData.confirmationCode
+    Username: result.value.email,
+    ConfirmationCode: result.value.confirmationCode
   };
 
   helper.cognitoIdentityServiceProvider.confirmSignUp(params).promise().then(result => {
@@ -160,13 +151,18 @@ api.post('/signup-confirm', request => {
   });
 });
 
-api.post('/confirm-resend', request => {
-  const authData = {
-    username: request.body.username.trim()
-  };
+api.post('/confirm-resend', req => {
+  // validate
+  const result = Joi.validate(req.body, {
+    email: UserValidation.schema.email
+  });
+  if (result.error) {
+    return helper.fail(result);
+  }
+
   const params = {
     ClientId: helper.poolData.clientId,
-    Username: authData.username
+    Username: result.value.email
   };
 
   helper.cognitoIdentityServiceProvider.resendConfirmationCode(params).promise().then(result => {
@@ -175,16 +171,21 @@ api.post('/confirm-resend', request => {
   });
 });
 
-api.post('/change-pw', request => {
-  const authData = {
-    token: request.body.token.trim(),
-    password: request.body.password.trim(),
-    oldPassword: request.body.oldpassword.trim()
-  };
+api.post('/change-pw', req => {
+  // validate
+  const result = Joi.validate(req.body, {
+    token: Joi.string().trim().required(),
+    password: UserValidation.schema.password,
+    oldPassword: Joi.string().trim().required()
+  });
+  if (result.error) {
+    return helper.fail(result);
+  }
+
   const params = {
-    PreviousPassword: authData.oldPassword,
-    ProposedPassword: authData.password,
-    AccessToken: authData.token
+    PreviousPassword: result.value.oldPassword,
+    ProposedPassword: result.value.password,
+    AccessToken: result.value.token
   };
 
   helper.cognitoIdentityServiceProvider.changePassword(params).promise().then(result => {
@@ -193,13 +194,18 @@ api.post('/change-pw', request => {
   });
 });
 
-api.post('/forgot-pw', request => {
-  const authData = {
-    username: request.body.username.trim()
-  };
+api.post('/forgot-pw', req => {
+  // validate
+  const result = Joi.validate(req.body, {
+    email: UserValidation.schema.email
+  });
+  if (result.error) {
+    return helper.fail(result);
+  }
+
   const params = {
     ClientId: helper.poolData.clientId,
-    Username: authData.username
+    Username: result.value.email
   };
 
   helper.cognitoIdentityServiceProvider.forgotPassword(params).promise().then(result => {
@@ -208,17 +214,22 @@ api.post('/forgot-pw', request => {
   });
 });
 
-api.post('/forgot-pw-confirm', request => {
-  const authData = {
-    username: request.body.username.trim(),
-    confirmationCode: request.body.confirmationCode.trim(),
-    password: request.body.password.trim()
-  };
+api.post('/forgot-pw-confirm', req => {
+  // validate
+  const result = Joi.validate(req.body, {
+    email: UserValidation.schema.email,
+    confirmationCode: Joi.string().trim().required(),
+    password: Joi.string().trim().required()
+  });
+  if (result.error) {
+    return helper.fail(result);
+  }
+
   const params = {
     ClientId: helper.poolData.clientId,
-    Username: authData.username,
-    ConfirmationCode: authData.confirmationCode,
-    Password: authData.password
+    Username: result.value.username,
+    ConfirmationCode: result.value.confirmationCode,
+    Password: result.value.password
   };
 
   helper.cognitoIdentityServiceProvider.confirmForgotPassword(params).promise().then(result => {

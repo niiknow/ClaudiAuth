@@ -35,5 +35,10 @@ export default {
   },
   uuidEmail: email => {
     return uuidv5(email, 'email');
+  },
+  setOptional: (name, val, attrs) => {
+    if (val) {
+      attrs.push({Name: name, Value: val.trim()});
+    }
   }
 };

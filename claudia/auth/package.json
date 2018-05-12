@@ -12,6 +12,7 @@
   "author": "noogen <friends@niiknow.org>",
   "dependencies": {
     "claudia-api-builder": "^4.0.0",
+    "joi": "^13.3.0",
     "uuid": "^3.2.1"
   },
   "optionalDependencies": {

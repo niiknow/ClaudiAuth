@@ -4,37 +4,37 @@ const api = new ApiBuilder();
 
 module.exports = api;
 
-api.get('/list', request => {
-  const auth = request.context.authorizer;
+api.post('/list', req => {
+  const auth = req.context.authorizer;
   // console.log(JSON.stringify(auth, 2));
 
-  return {id: request.pathParams.id, auth: auth};
+  return {id: req.pathParams.id, auth: auth};
 });
 
-api.post('/create', request => {
-  const auth = request.context.authorizer;
+api.post('/create', req => {
+  const auth = req.context.authorizer;
   // console.log(JSON.stringify(auth, 2));
 
-  return {id: request.pathParams.id, auth: auth};
+  return {id: req.pathParams.id, auth: auth};
 });
 
-api.get('/retrieve/{id}', request => {
-  const auth = request.context.authorizer;
+api.get('/retrieve/{id}', req => {
+  const auth = req.context.authorizer;
   // console.log(JSON.stringify(auth, 2));
 
-  return {id: request.pathParams.id, auth: auth};
+  return {id: req.pathParams.id, auth: auth};
 });
 
-api.post('/update/{id}', request => {
-  const auth = request.context.authorizer;
+api.post('/update/{id}', req => {
+  const auth = req.context.authorizer;
   // console.log(JSON.stringify(auth, 2));
 
-  return {id: request.pathParams.id, auth: auth};
+  return {id: req.pathParams.id, auth: auth};
 });
 
-api.post('/delete/{id}', request => {
-  const auth = request.context.authorizer;
+api.post('/delete/{id}', req => {
+  const auth = req.context.authorizer;
   // console.log(JSON.stringify(auth, 2));
 
-  return {id: request.pathParams.id, auth: auth};
+  return {id: req.pathParams.id, auth: auth};
 });
