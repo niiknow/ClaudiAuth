@@ -48,6 +48,10 @@ const helper = {
       return {success: false, error: {errorMessage: data}};
     }
 
+    if (data && data.error) {
+      return {success: false, error: data.error};
+    }
+
     return {success: false, error: data};
   },
   success: data => {

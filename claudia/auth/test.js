@@ -144,7 +144,7 @@ test.serial('/signup fail due to unknown property', async t => {
     }
   }, t.context);
   t.true(t.context.done.calledOnce);
-  t.is(t.context.done.lastCall.lastArg.body, '{"errorMessage":"\\"unknown\\" is not allowed"}');
+  t.is(t.context.done.lastCall.lastArg.body, '{"success":false,"error":{"isJoi":true,"name":"ValidationError","details":[{"message":"\\"unknown\\" is not allowed","path":["unknown"],"type":"object.allowUnknown","context":{"child":"unknown","key":"unknown","label":"unknown"}}],"_object":{"given_name":"Friends","middle_name":"At","family_name":"NeedToKnow","email":"friends@niiknow.org","password":"DoYouNeedToKnow!1","confirmPassword":"DoYouNeedToKnow!1","unknown":"xxx"}}}');
   t.pass();
 });
 
