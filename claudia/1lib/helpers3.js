@@ -16,7 +16,7 @@ class HelperS3 {
     this._s3 = new AWS.S3();
   }
 
-  parseContents(items) {
+  parseContents(items, forListing = false) {
     /*
     data = {
      Contents: [
@@ -35,15 +35,25 @@ class HelperS3 {
     */
     const rst = [];
 
-    items.forEach(itm => {
-      const kvals = itm.Key.replace(/[+]*/gi, ' ').trim().split('*');
-      rst.push({
-        id: kvals[0],
-        name: decodeURIComponent(kvals[1]),
-        _size: itm.Size,
-        _timestamp: itm.LastModified,
-        _etag: itm.ETag
-      });
+    items.forEach(item => {
+      if (forListing) {
+        const kvals = item.Key.replace(/[+]*/gi, ' ').trim().split('.');
+        rst.push({
+          id: kvals[0],
+          name: decodeURIComponent(kvals[1]),
+          _key: item.Key,
+          _size: item.Size,
+          _timestamp: item.LastModified,
+          _etag: item.ETag
+        });
+      } else {
+        rst.push({
+          _key: item.Key,
+          _size: item.Size,
+          _timestamp: item.LastModified,
+          _etag: item.ETag
+        });
+      }
     });
 
     return rst;

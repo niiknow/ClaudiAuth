@@ -55,7 +55,11 @@ class StorageS3 {
   }
 
   list() {
-    return this._s3.list('!');
+    const $this = this;
+
+    return $this._s3.list('!').then(rst => {
+      return $this._s3.parseContents(rst.Contents, true);
+    });
   }
 
   save(item) {
