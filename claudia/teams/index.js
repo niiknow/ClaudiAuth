@@ -2,7 +2,7 @@ const ApiBuilder = require('claudia-api-builder');
 const Joi = require('joi');
 const helper = require('./lib/helper');
 
-const name = 'template';
+const name = 'teams';
 const api = new ApiBuilder();
 
 module.exports = api;
@@ -105,7 +105,7 @@ api.post('/delete/{id}', req => {
   return storage.delete(result.value.id);
 });
 
-api.post('/{id}/role/{role}/{email}', req => {
+api.post('/{id}/role/{role}/user/{email}', req => {
   const auth = req.context.authorizer;
   const storage = helper.getStorage('s3', name);
   // console.log(JSON.stringify(auth, 2));
