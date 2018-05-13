@@ -1,71 +1,125 @@
 import test from 'ava';
 import sinon from 'sinon';
+import helper from './lib/helper';
 import m from '.';
 
 test.beforeEach(t => {
   t.context.done = sinon.spy();
 });
 
-test('list', t => {
-  return m.proxyRouter({
+test.serial('list', async t => {
+  let actual = false;
+  const helperMock = sinon.stub(helper, 'getStorage').callsFake(() => {
+    return {
+      list: () => {
+        actual = true;
+      }
+    };
+  });
+
+  await m.proxyRouter({
     requestContext: {
       resourcePath: '/list',
-      httpMethod: 'GET'
+      httpMethod: 'POST',
+      authorizer: {claims: {'custom:rank': 'adm'}}
     }
-  }, t.context).then(() => {
-    return t.true(t.context.done.calledOnce);
-  });
+  }, t.context);
+
+  helperMock.restore();
+  t.true(actual);
+  t.pass();
 });
 
-test('create', t => {
-  return m.proxyRouter({
+test.serial('create', async t => {
+  let actual = false;
+  const helperMock = sinon.stub(helper, 'getStorage').callsFake(() => {
+    return {
+      create: () => {
+        actual = true;
+      }
+    };
+  });
+
+  await m.proxyRouter({
     requestContext: {
       resourcePath: '/create',
-      httpMethod: 'POST'
-    }
-  }, t.context).then(() => {
-    return t.true(t.context.done.calledOnce);
-  });
-});
-
-test('retrieve', t => {
-  return m.proxyRouter({
-    requestContext: {
-      resourcePath: '/retrieve',
-      httpMethod: 'GET'
+      httpMethod: 'POST',
+      authorizer: {claims: {'custom:rank': 'adm'}}
     },
-    pathParameters: {
-      id: 'test'
-    }
-  }, t.context).then(() => {
-    return t.true(t.context.done.calledOnce);
-  });
+    body: {name: 'test'}
+  }, t.context);
+  helperMock.restore();
+  t.true(actual);
+  t.pass();
 });
 
-test('update', t => {
-  return m.proxyRouter({
+test.serial('retrieve', async t => {
+  let actual = false;
+  const helperMock = sinon.stub(helper, 'getStorage').callsFake(() => {
+    return {
+      retrieve: () => {
+        actual = true;
+      }
+    };
+  });
+
+  await m.proxyRouter({
+    requestContext: {
+      resourcePath: '/retrieve/{id}',
+      httpMethod: 'GET',
+      authorizer: {claims: {'custom:rank': 'adm'}}
+    },
+    pathParameters: {id: 'test'}
+  }, t.context);
+  helperMock.restore();
+  t.true(actual);
+  t.pass();
+});
+
+test.serial('update', async t => {
+  let actual = false;
+  const helperMock = sinon.stub(helper, 'getStorage').callsFake(() => {
+    return {
+      update: () => {
+        actual = true;
+      }
+    };
+  });
+
+  await m.proxyRouter({
     requestContext: {
       resourcePath: '/update',
-      httpMethod: 'POST'
+      httpMethod: 'POST',
+      authorizer: {claims: {'custom:rank': 'adm'}}
     },
-    pathParameters: {
-      id: 'test'
-    }
-  }, t.context).then(() => {
-    return t.true(t.context.done.calledOnce);
-  });
+    pathParameters: {id: 'test'},
+    body: {name: 'test', id: 'test'}
+  }, t.context);
+  helperMock.restore();
+  t.true(actual);
+  t.pass();
 });
 
-test('delete', t => {
-  return m.proxyRouter({
-    requestContext: {
-      resourcePath: '/delete',
-      httpMethod: 'POST'
-    },
-    pathParameters: {
-      id: 'test'
-    }
-  }, t.context).then(() => {
-    return t.true(t.context.done.calledOnce);
+test.serial('delete', async t => {
+  let actual = false;
+  const helperMock = sinon.stub(helper, 'getStorage').callsFake(() => {
+    return {
+      delete: () => {
+        actual = true;
+      }
+    };
   });
+
+  await m.proxyRouter({
+    requestContext: {
+      resourcePath: '/delete/{id}',
+      httpMethod: 'POST',
+      authorizer: {claims: {'custom:rank': 'adm'}}
+    },
+    pathParameters: {id: 'test'},
+    body: {name: 'test', id: 'test'}
+  }, t.context);
+  helperMock.restore();
+  t.true(actual);
+  t.pass();
 });

@@ -93,9 +93,8 @@ api.post('/signup', req => {
     }
   }
 
-  helper.cognitoIdentityServiceProvider.signUp(params).promise().then(result => {
-    return helper.success(result);
-  });
+  helper.cognitoIdentityServiceProvider.signUp(params)
+    .promise().then(helper.success).catch(helper.fail);
 });
 
 api.post('/signup-confirm', req => {

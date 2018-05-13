@@ -2,18 +2,19 @@ const ApiBuilder = require('claudia-api-builder');
 const Joi = require('joi');
 const helper = require('./lib/helper');
 
+const name = 'template';
 const api = new ApiBuilder();
 
 module.exports = api;
 
 api.post('/list', req => {
   const auth = req.context.authorizer;
-  const storage = helper.getStorage('s3', 'template');
+  const storage = helper.getStorage('s3', name);
   // console.log(JSON.stringify(auth, 2));
 
   // only admiral rank and user can read
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail({message: 'Access is denied.'});
+    return helper.fail('Access is denied.');
   }
 
   return storage.list();
@@ -21,7 +22,7 @@ api.post('/list', req => {
 
 api.post('/create', req => {
   const auth = req.context.authorizer;
-  const storage = helper.getStorage('s3', 'template');
+  const storage = helper.getStorage('s3', name);
   // console.log(JSON.stringify(auth, 2));
 
   // validate
@@ -34,7 +35,7 @@ api.post('/create', req => {
 
   // only admiral rank and user can read
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail({message: 'Access is denied.'});
+    return helper.fail('Access is denied.');
   }
 
   return storage.create(result.value);
@@ -42,7 +43,7 @@ api.post('/create', req => {
 
 api.get('/retrieve/{id}', req => {
   const auth = req.context.authorizer;
-  const storage = helper.getStorage('s3', 'template');
+  const storage = helper.getStorage('s3', name);
   // console.log(JSON.stringify(auth, 2));
 
   // validate
@@ -55,7 +56,7 @@ api.get('/retrieve/{id}', req => {
 
   // only admiral rank and user can read
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail({message: 'Access is denied.'});
+    return helper.fail('Access is denied.');
   }
 
   return storage.retrieve(result.value.id);
@@ -63,7 +64,7 @@ api.get('/retrieve/{id}', req => {
 
 api.post('/update', req => {
   const auth = req.context.authorizer;
-  const storage = helper.getStorage('s3', 'template');
+  const storage = helper.getStorage('s3', name);
   // console.log(JSON.stringify(auth, 2));
 
   // validate
@@ -77,7 +78,7 @@ api.post('/update', req => {
 
   // only admiral rank and user can read
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail({message: 'Access is denied.'});
+    return helper.fail('Access is denied.');
   }
 
   return storage.update(result.value);
@@ -85,7 +86,7 @@ api.post('/update', req => {
 
 api.post('/delete/{id}', req => {
   const auth = req.context.authorizer;
-  const storage = helper.getStorage('s3', 'template');
+  const storage = helper.getStorage('s3', name);
   // console.log(JSON.stringify(auth, 2));
 
   // validate
@@ -98,7 +99,7 @@ api.post('/delete/{id}', req => {
 
   // only admiral rank and user can read
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail({message: 'Access is denied.'});
+    return helper.fail('Access is denied.');
   }
 
   return storage.delete(result.value.id);
