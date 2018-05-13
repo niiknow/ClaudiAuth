@@ -14,7 +14,7 @@ api.post('/list', req => {
 
   // only admiral rank and user can read
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail('Access is denied.');
+    return helper.fail('Access is denied');
   }
 
   return storage.list();
@@ -35,10 +35,10 @@ api.post('/create', req => {
 
   // only admiral rank and user can read
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail('Access is denied.');
+    return helper.fail('Access is denied');
   }
 
-  return storage.create(result.value);
+  return storage.save(result.value);
 });
 
 api.get('/retrieve/{id}', req => {
@@ -56,7 +56,7 @@ api.get('/retrieve/{id}', req => {
 
   // only admiral rank and user can read
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail('Access is denied.');
+    return helper.fail('Access is denied');
   }
 
   return storage.retrieve(result.value.id);
@@ -78,10 +78,10 @@ api.post('/update', req => {
 
   // only admiral rank and user can read
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail('Access is denied.');
+    return helper.fail('Access is denied');
   }
 
-  return storage.update(result.value);
+  return storage.save(result.value);
 });
 
 api.post('/delete/{id}', req => {
@@ -99,7 +99,7 @@ api.post('/delete/{id}', req => {
 
   // only admiral rank and user can read
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail('Access is denied.');
+    return helper.fail('Access is denied');
   }
 
   return storage.delete(result.value.id);

@@ -1,10 +1,12 @@
 const AWS = require('aws-sdk');
+const Joi = require('joi');
 const uuidv5 = require('uuid/v5');
 const StorageS3 = require('./storages3');
 
 AWS.config.region = process.env.region;
 
 const helper = {
+  nameSchema: Joi.string().trim().required().regex(/^[a-zA-Z0-9 ]{3,100}$/),
   translateAuthResult: result => {
     const rsp = {success: false};
 
@@ -46,16 +48,10 @@ const helper = {
       return {success: false, error: {errorMessage: data}};
     }
 
-    data.success = false;
-    return data;
+    return {success: false, error: data};
   },
   success: data => {
-    if (typeof data === 'string' || data instanceof String) {
-      return {success: true, value: data};
-    }
-
-    data.success = true;
-    return data;
+    return {success: true, value: data};
   },
   getStorage: (type, name) => {
     if (type === 's3') {

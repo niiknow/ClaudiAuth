@@ -19,55 +19,114 @@ class StorageS3 {
     return isValid;
   }
 
-  list() {
-    return this.s3.list();
+  isValidName(name) {
+    const isValid = (typeof name !== 'undefined');
+
+    if (isValid) {
+      return /^[a-zA-Z0-9 ]{3,100}$/gi.test(name);
+    }
+
+    return isValid;
   }
 
-  create(item) {
-    const id = uuidv4();
-    item.id = id;
-    this.update(id, item);
+  isValid(item) {
+    return this.isValidId(item.id) && this.isValidName(item.name);
+  }
+
+  exists(item) {
+    const $this = this;
+    const path = `!${item.id}.`;
+    const params = this._s3.getParams(path, true);
+
+    return this._s3.listObjectsV2(params).promise().then(rst => {
+      if (rst.Contents) {
+        return {
+          success: true,
+          value: $this._s3.parseContents(rst.Contents)
+        };
+      }
+    }).catch(err => {
+      console.log('exists error', path, err);
+      return {
+        success: false,
+        error: err
+      };
+    });
+  }
+
+  list() {
+    return this._s3.list('!');
+  }
+
+  save(item) {
+    const $this = this;
+    let isExisting = true;
+
+    if (!item.id) {
+      item.id = uuidv4();
+      isExisting = false;
+    }
+
+    if (!$this.isValid(item.id)) {
+      return new Promise((resolve, reject) => {
+        reject(new Error('Invalid item id or name'));
+      });
+    }
+
+    let payload = JSON.stringify(item);
+
+    if (isExisting) {
+      return $this.retrieve(item.id).then(rst => {
+        const existingItem = JSON.parse(rst.body);
+        const newItem = Object.assign(existingItem, item);
+        payload = JSON.stringify(newItem);
+
+        // name changed, delete old item markers
+        if (existingItem.name !== newItem.name) {
+          $this.list(`!${item.id}.`).then(rst => {
+            // create new item marker for listing
+            $this.saveObject(`!${newItem.id}.${newItem.name}`, '{}');
+
+            // delete old item markers
+            $this._s3.deleteContents(rst.Contents);
+          });
+        }
+        return $this._s3.saveObject(`${item.id}/index.json`, payload);
+      });
+    }
+
+    // create item marker for listing
+    $this.saveObject(`!${item.id}.${item.name}`, '{}');
+    return $this._s3.saveObject(`${item.id}/index.json`, payload);
   }
 
   retrieve(id) {
     const $this = this;
-    return new Promise((resolve, reject) => {
-      if (!$this.isValidId(id)) {
-        return reject(new Error('Invalid item id.'));
-      }
+    if (!$this.isValidId(id)) {
+      return new Promise((resolve, reject) => {
+        reject(new Error('Invalid item id'));
+      });
+    }
 
-      return $this._s3
-        .getObject(`${id}.json`)
-        .then(resolve)
-        .catch(reject);
-    });
-  }
-
-  update(item) {
-    const $this = this;
-    return new Promise((resolve, reject) => {
-      if (!$this.isValidId(item.id)) {
-        return reject(new Error('Invalid item id.'));
-      }
-
-      return $this._s3.saveObject(`${item.id}.json`, JSON.stringify(item))
-        .then(resolve)
-        .catch(reject);
-    });
+    return $this._s3
+      .getObject(`${id}/index.json`);
   }
 
   delete(id) {
     const $this = this;
-    return new Promise((resolve, reject) => {
-      if (!$this.isValidId(id)) {
-        return reject(new Error('Invalid item id.'));
-      }
+    if (!$this.isValidId(id)) {
+      return new Promise((resolve, reject) => {
+        reject(new Error('Invalid item id'));
+      });
+    }
 
-      return $this._s3
-        .deleteObject(`${id}.json`)
-        .then(resolve)
-        .catch(reject);
+    // delete old item markers
+    $this.list(`!${id}.`).then(rst => {
+      $this._s3.deleteContents(rst.Contents);
     });
+
+    return $this._s3
+      .deleteObject(`${id}/index.json`);
   }
 }
 
