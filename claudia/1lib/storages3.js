@@ -3,6 +3,7 @@ const uuidv4 = require('uuid/v4');
 const HelperS3 = require('./helpers3');
 
 AWS.config.region = process.env.region;
+const specialChar = '*';
 
 class StorageS3 {
   constructor(bucket, baseFolder = '') {
@@ -35,7 +36,7 @@ class StorageS3 {
 
   exists(item) {
     const $this = this;
-    const path = `!${item.id}.`;
+    const path = `${specialChar}${item.id}.`;
     const params = this._s3.getParams(path, true);
 
     return this._s3.listObjectsV2(params).promise().then(rst => {
@@ -57,7 +58,7 @@ class StorageS3 {
   list() {
     const $this = this;
 
-    return $this._s3.list('!').then(rst => {
+    return $this._s3.list(specialChar).then(rst => {
       return $this._s3.parseContents(rst.Contents, true);
     });
   }
@@ -81,26 +82,30 @@ class StorageS3 {
 
     if (isExisting) {
       return $this.retrieve(item.id).then(rst => {
-        const existingItem = JSON.parse(rst.body);
+        const existingItem = JSON.parse(rst.Body.toString());
         const newItem = Object.assign(existingItem, item);
         payload = JSON.stringify(newItem);
 
         // name changed, delete old item markers
-        if (existingItem.name !== newItem.name) {
-          $this.list(`!${item.id}.`).then(rst => {
-            // create new item marker for listing
-            $this.saveObject(`!${newItem.id}.${newItem.name}`, '{}');
+        if (existingItem.name === newItem.name) {
+          // add or update marker
+          $this.saveObject(`${specialChar}${newItem.id}.${newItem.name}`, payload);
+        } else {
+          $this.list(`${specialChar}${item.id}.`).then(rst => {
+            // add or update marker
+            $this.saveObject(`${specialChar}${newItem.id}.${newItem.name}`, payload);
 
             // delete old item markers
             $this._s3.deleteContents(rst.Contents);
           });
         }
+
         return $this._s3.saveObject(`${item.id}/index.json`, payload);
       });
     }
 
     // create item marker for listing
-    $this.saveObject(`!${item.id}.${item.name}`, '{}');
+    $this.saveObject(`${specialChar}${item.id}.${item.name}`, payload);
     return $this._s3.saveObject(`${item.id}/index.json`, payload);
   }
 
@@ -113,7 +118,9 @@ class StorageS3 {
     }
 
     return $this._s3
-      .getObject(`${id}/index.json`);
+      .getObject(`${id}/index.json`).then(rst => {
+        return JSON.parse(rst.Body);
+      });
   }
 
   delete(id) {
@@ -125,12 +132,36 @@ class StorageS3 {
     }
 
     // delete old item markers
-    $this.list(`!${id}.`).then(rst => {
+    $this.list(`${specialChar}${id}.`).then(rst => {
       $this._s3.deleteContents(rst.Contents);
     });
 
     return $this._s3
       .deleteObject(`${id}/index.json`);
+  }
+
+  specialAttr(id, name, value) {
+    const $this = this;
+    if (!$this.isValid({id: id, name: name}) || (name.toLowerCase() === 'index')) {
+      return new Promise((resolve, reject) => {
+        reject(new Error('Invalid item id or attribute name'));
+      });
+    }
+
+    if (value) {
+      return $this._s3
+        .saveObject(`${id}/${name}.json`, JSON.stringify(value))
+        .then(rst => {
+          return JSON.parse(rst.Body.toString());
+        });
+    }
+
+    return $this._s3.getObject(`${id}/${name}.json`)
+      .then(rst => {
+        return JSON.parse((rst.Body || '{}').toString());
+      }).catch(() => {
+        return {};
+      });
   }
 }
 
