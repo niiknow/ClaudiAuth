@@ -6,7 +6,13 @@ const StorageS3 = require('./storages3');
 AWS.config.region = process.env.region;
 
 const helper = {
-  nameSchema: Joi.string().trim().required().regex(/^[a-zA-Z0-9 ]{3,100}$/),
+  schema: {
+    default: {
+      id: Joi.string().trim().guid().required(),
+      email: Joi.string().trim().lowercase().min(5).max(200).email().required(),
+      name: Joi.string().trim().regex(/^[a-zA-Z0-9 ]{3,100}$/).required()
+    }
+  },
   translateAuthResult: result => {
     const rsp = {success: false};
 

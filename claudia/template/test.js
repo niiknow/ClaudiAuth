@@ -1,5 +1,6 @@
 import test from 'ava';
 import sinon from 'sinon';
+import uuidv4 from 'uuid/v4';
 import helper from './lib/helper';
 import m from '.';
 
@@ -69,7 +70,7 @@ test.serial('retrieve', async t => {
       httpMethod: 'GET',
       authorizer: {claims: {'custom:rank': 'adm'}}
     },
-    pathParameters: {id: 'test'}
+    pathParameters: {id: uuidv4()}
   }, t.context);
   helperMock.restore();
   t.true(actual);
@@ -92,8 +93,7 @@ test.serial('update', async t => {
       httpMethod: 'POST',
       authorizer: {claims: {'custom:rank': 'adm'}}
     },
-    pathParameters: {id: 'test'},
-    body: {name: 'test', id: 'test'}
+    body: {name: 'test', id: uuidv4()}
   }, t.context);
   helperMock.restore();
   t.true(actual);
@@ -116,8 +116,7 @@ test.serial('delete', async t => {
       httpMethod: 'POST',
       authorizer: {claims: {'custom:rank': 'adm'}}
     },
-    pathParameters: {id: 'test'},
-    body: {name: 'test', id: 'test'}
+    pathParameters: {id: uuidv4()}
   }, t.context);
   helperMock.restore();
   t.true(actual);

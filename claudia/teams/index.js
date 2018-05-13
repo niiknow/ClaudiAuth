@@ -27,7 +27,8 @@ api.post('/create', req => {
 
   // validate
   const result = Joi.validate(req.body, {
-    name: Joi.string().min(1).max(100).trim().required()
+    name: helper.schema.default.name,
+    desc: Joi.string().trim()
   });
   if (result.error) {
     return helper.fail(result);
@@ -48,7 +49,7 @@ api.get('/retrieve/{id}', req => {
 
   // validate
   const result = Joi.validate(req.pathParams, {
-    id: Joi.string().trim().required()
+    id: helper.schema.default.id
   });
   if (result.error) {
     return helper.fail(result);
@@ -69,8 +70,9 @@ api.post('/update', req => {
 
   // validate
   const result = Joi.validate(req.body, {
-    id: Joi.string().min(1).max(100).trim().required(),
-    name: Joi.string().min(1).max(100).trim().required()
+    id: helper.schema.default.id,
+    name: helper.schema.default.name,
+    desc: Joi.string().trim()
   });
   if (result.error) {
     return helper.fail(result);
@@ -91,7 +93,7 @@ api.post('/delete/{id}', req => {
 
   // validate
   const result = Joi.validate(req.pathParams, {
-    id: Joi.string().min(1).max(100).trim().required()
+    id: helper.schema.default.id
   });
   if (result.error) {
     return helper.fail(result);
@@ -112,8 +114,8 @@ api.post('/{id}/role/{role}/user/{email}', req => {
 
   // validate
   const result = Joi.validate(req.pathParams, {
-    id: Joi.string().min(1).max(100).trim().required(),
-    email: Joi.string().trim().lowercase().min(5).max(200).email().required(),
+    id: helper.schema.default.id,
+    email: helper.schema.default.email,
     role: Joi.string().trim().valid(['admin', 'user', 'remove'])
   });
   if (result.error) {

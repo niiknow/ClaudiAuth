@@ -27,7 +27,7 @@ api.post('/create', req => {
 
   // validate
   const result = Joi.validate(req.body, {
-    name: Joi.string().min(1).max(100).trim().required()
+    name: helper.schema.default.name
   });
   if (result.error) {
     return helper.fail(result);
@@ -48,7 +48,7 @@ api.get('/retrieve/{id}', req => {
 
   // validate
   const result = Joi.validate(req.pathParams, {
-    id: Joi.string().trim().required()
+    id: helper.schema.default.id
   });
   if (result.error) {
     return helper.fail(result);
@@ -69,8 +69,8 @@ api.post('/update', req => {
 
   // validate
   const result = Joi.validate(req.body, {
-    id: Joi.string().min(1).max(100).trim().required(),
-    name: Joi.string().min(1).max(100).trim().required()
+    id: helper.schema.default.id,
+    name: helper.schema.default.name
   });
   if (result.error) {
     return helper.fail(result);
@@ -91,7 +91,7 @@ api.post('/delete/{id}', req => {
 
   // validate
   const result = Joi.validate(req.pathParams, {
-    id: Joi.string().min(1).max(100).trim().required()
+    id: helper.schema.default.id
   });
   if (result.error) {
     return helper.fail(result);
