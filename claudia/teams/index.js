@@ -2,7 +2,7 @@ const ApiBuilder = require('claudia-api-builder');
 const Joi = require('joi');
 const helper = require('./lib/helper');
 
-const name = 'teams';
+const name = 'template';
 const api = new ApiBuilder();
 
 module.exports = api;
@@ -38,7 +38,7 @@ api.post('/create', req => {
     return helper.fail('Access is denied');
   }
 
-  return storage.create(result.value);
+  return storage.save(result.value);
 });
 
 api.get('/retrieve/{id}', req => {
@@ -81,7 +81,7 @@ api.post('/update', req => {
     return helper.fail('Access is denied');
   }
 
-  return storage.update(result.value);
+  return storage.save(result.value);
 });
 
 api.post('/delete/{id}', req => {
@@ -103,4 +103,29 @@ api.post('/delete/{id}', req => {
   }
 
   return storage.delete(result.value.id);
+});
+
+api.post('/{id}/role/{role}/{email}', req => {
+  const auth = req.context.authorizer;
+  const storage = helper.getStorage('s3', name);
+  // console.log(JSON.stringify(auth, 2));
+
+  // validate
+  const result = Joi.validate(req.pathParams, {
+    id: Joi.string().min(1).max(100).trim().required(),
+    email: Joi.string().trim().lowercase().min(5).max(200).email().required(),
+    role: Joi.string().trim().valid(['admin', 'user', 'remove'])
+  });
+  if (result.error) {
+    return helper.fail(result);
+  }
+
+  // only admiral rank and user can read
+  if (!helper.isRank(auth, 'adm')) {
+    return helper.fail('Access is denied');
+  }
+  const payload = {};
+  payload[result.value.email] = result.value.role;
+
+  return storage.specialAttr(result.value.id, 'users', payload);
 });

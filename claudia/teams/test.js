@@ -34,7 +34,7 @@ test.serial('create', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'getStorage').callsFake(() => {
     return {
-      create: () => {
+      save: () => {
         actual = true;
       }
     };
@@ -80,7 +80,7 @@ test.serial('update', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'getStorage').callsFake(() => {
     return {
-      update: () => {
+      save: () => {
         actual = true;
       }
     };

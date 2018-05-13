@@ -148,17 +148,23 @@ class StorageS3 {
       });
     }
 
-    if (value) {
-      return $this._s3
-        .saveObject(`${id}/${name}.json`, JSON.stringify(value))
-        .then(rst => {
-          return JSON.parse(rst.Body.toString());
-        });
-    }
-
     return $this._s3.getObject(`${id}/${name}.json`)
       .then(rst => {
-        return JSON.parse((rst.Body || '{}').toString());
+        const existingItem = JSON.parse((rst.Body || '{}').toString());
+
+        if (value) {
+          const newItem = Object.assign(existingItem, value);
+          const newItem2 = {};
+          for (const k in newItem) {
+            if (newItem[k] !== 'remove') {
+              newItem2[k] = newItem[k];
+            }
+          }
+          return $this._s3
+            .saveObject(`${id}/${name}.json`, JSON.stringify(newItem));
+        }
+
+        return existingItem;
       }).catch(() => {
         return {};
       });
