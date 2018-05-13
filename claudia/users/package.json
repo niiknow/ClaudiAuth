@@ -11,6 +11,7 @@
   },
   "author": "noogen <friends@niiknow.org>",
   "dependencies": {
+    "cache-manager": "^2.9.0",
     "claudia-api-builder": "^4.0.0",
     "joi": "^13.3.0",
     "mime": "^2.3.1",
