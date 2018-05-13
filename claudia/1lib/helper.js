@@ -42,10 +42,18 @@ const helper = {
     return (rank && rank === checkRank);
   },
   fail: data => {
+    if (typeof data === 'string' || data instanceof String) {
+      return {success: false, error: {errorMessage: data}};
+    }
+
     data.success = false;
     return data;
   },
   success: data => {
+    if (typeof data === 'string' || data instanceof String) {
+      return {success: true, value: data};
+    }
+
     data.success = true;
     return data;
   },

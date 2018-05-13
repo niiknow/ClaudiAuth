@@ -136,7 +136,7 @@ api.post('/confirm-resend', req => {
     .then(helper.success).catch(helper.fail);
 });
 
-api.post('/change-pw', req => {
+api.post('/change-password', req => {
   // validate
   const result = Joi.validate(req.body, {
     token: Joi.string().trim().required(),
@@ -157,7 +157,7 @@ api.post('/change-pw', req => {
     .then(helper.success).catch(helper.fail);
 });
 
-api.post('/forgot-pw', req => {
+api.post('/forgot-password', req => {
   // validate
   const result = Joi.validate(req.body, {
     email: UserValidation.schema.email
@@ -175,7 +175,7 @@ api.post('/forgot-pw', req => {
     .then(helper.success).catch(helper.fail);
 });
 
-api.post('/forgot-pw-confirm', req => {
+api.post('/forgot-password-confirm', req => {
   // validate
   const result = Joi.validate(req.body, {
     email: UserValidation.schema.email,

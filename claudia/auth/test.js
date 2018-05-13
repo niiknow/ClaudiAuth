@@ -7,7 +7,7 @@ test.beforeEach(t => {
   t.context.done = sinon.spy();
 });
 
-test.serial('login success with valid values', async t => {
+test.serial('/login success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     adminInitiateAuth: () => {
@@ -39,7 +39,7 @@ test.serial('login success with valid values', async t => {
   t.pass();
 });
 
-test.serial('refresh success with valid values', async t => {
+test.serial('/refresh success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     adminInitiateAuth: () => {
@@ -70,7 +70,7 @@ test.serial('refresh success with valid values', async t => {
   t.pass();
 });
 
-test.serial('signup success with valid values', async t => {
+test.serial('/signup success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     signUp: () => {
@@ -126,7 +126,7 @@ test.serial('signup success with valid values', async t => {
   t.pass();
 });
 
-test.serial('signup fail due to unknown property', async t => {
+test.serial('/signup fail due to unknown property', async t => {
   await m.proxyRouter({
     requestContext: {
       resourcePath: '/signup',
@@ -148,7 +148,7 @@ test.serial('signup fail due to unknown property', async t => {
   t.pass();
 });
 
-test.serial('signup-confirm success with valid values', async t => {
+test.serial('/signup-confirm success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     confirmSignUp: () => {
@@ -180,7 +180,7 @@ test.serial('signup-confirm success with valid values', async t => {
   t.pass();
 });
 
-test.serial('confirm-resend success with valid values', async t => {
+test.serial('/confirm-resend success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     resendConfirmationCode: () => {
@@ -211,7 +211,7 @@ test.serial('confirm-resend success with valid values', async t => {
   t.pass();
 });
 
-test.serial('change-password success with valid values', async t => {
+test.serial('/change-password success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     changePassword: () => {
@@ -228,7 +228,7 @@ test.serial('change-password success with valid values', async t => {
 
   await m.proxyRouter({
     requestContext: {
-      resourcePath: '/change-pw',
+      resourcePath: '/change-password',
       httpMethod: 'POST',
       authorizer: {claims: {'custom:rank': 'adm'}}
     },
@@ -244,7 +244,7 @@ test.serial('change-password success with valid values', async t => {
   t.pass();
 });
 
-test.serial('forgot-password success with valid values', async t => {
+test.serial('/forgot-password success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     forgotPassword: () => {
@@ -261,7 +261,7 @@ test.serial('forgot-password success with valid values', async t => {
 
   await m.proxyRouter({
     requestContext: {
-      resourcePath: '/forgot-pw',
+      resourcePath: '/forgot-password',
       httpMethod: 'POST',
       authorizer: {claims: {'custom:rank': 'adm'}}
     },
@@ -275,7 +275,7 @@ test.serial('forgot-password success with valid values', async t => {
   t.pass();
 });
 
-test.serial('forgot-password-confirm success with valid values', async t => {
+test.serial('/forgot-password-confirm success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     confirmForgotPassword: () => {
@@ -292,7 +292,7 @@ test.serial('forgot-password-confirm success with valid values', async t => {
 
   await m.proxyRouter({
     requestContext: {
-      resourcePath: '/forgot-pw-confirm',
+      resourcePath: '/forgot-password-confirm',
       httpMethod: 'POST',
       authorizer: {claims: {'custom:rank': 'adm'}}
     },

@@ -1,4 +1,6 @@
 const ApiBuilder = require('claudia-api-builder');
+const Joi = require('joi');
+const UserValidation = require('./lib/user.validation');
 const helper = require('./lib/helper');
 
 const api = new ApiBuilder();
@@ -11,32 +13,27 @@ api.post('/list', req => {
 
   // only admiral rank can do this
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail({message: 'Access is denied.'});
+    return helper.fail('Access is denied.');
   }
 
-  const data = {
-    filter: req.body.filter,
-    limit: req.body.limit || 60,
-    page: req.body.page
-  };
+  // validate
+  const result = Joi.validate(req.body, {
+    filter: Joi.string().trim(),
+    limit: Joi.number().max(60),
+    page: Joi.string().trim()
+  });
 
-  if (data.limit > 60) {
-    data.limit = 60;
+  if (result.error) {
+    return helper.fail(result);
   }
 
   helper.cognitoIdentityServiceProvider.listUsers({
-    AttributesToGet: ['username', 'email', 'phone', 'given_name', 'family_name'],
-    Filter: data.filter,
-    Limit: data.limit,
-    PaginationToken: data.page,
+    AttributesToGet: ['email', 'phone', 'given_name', 'family_name', 'custom:rank', 'custom:uid'],
+    Filter: result.value.filter,
+    Limit: result.value.limit || 60,
+    PaginationToken: result.value.page,
     UserPoolId: helper.poolData.id
-  }).promise().then(result => {
-    console.log('list result', result);
-    return helper.success(result);
-  }).catch(err => {
-    console.log('list err', err);
-    return helper.fail(err);
-  });
+  }).promise().then(helper.success).catch(helper.fail);
 });
 
 api.post('/create', req => {
@@ -45,7 +42,7 @@ api.post('/create', req => {
 
   // only admiral rank can do this
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail({message: 'Access is denied.'});
+    return helper.fail('Access is denied.');
   }
 
   const result = Joi.validate(req.body, UserValidation.schema);
@@ -79,19 +76,17 @@ api.post('/create', req => {
       params.UserAttributes.push({
         Name: `custom:${k}`,
         Value: result.value[k]
-      })
+      });
     } else {
       params.UserAttributes.push({
         Name: k,
         Value: result.value[k]
-      })
+      });
     }
   }
 
-  helper.cognitoIdentityServiceProvider.adminCreateUser(params).promise().then(result => {
-    console.log('create result', result);
-    return result;
-  });
+  helper.cognitoIdentityServiceProvider.adminCreateUser(params)
+    .promise().then(helper.success).catch(helper.fail);
 });
 
 api.get('/retrieve/{email}', req => {
@@ -108,19 +103,13 @@ api.get('/retrieve/{email}', req => {
 
   // only admiral rank and user can read
   if (!helper.isRank(auth, 'adm') && !helper.isUser(auth, result.value.email)) {
-    return helper.fail({message: 'Access is denied.'});
+    return helper.fail('Access is denied.');
   }
 
-  helper.cognitoIdentityServiceProvider.listUsers({
+  helper.cognitoIdentityServiceProvider.adminGetUser({
     Username: result.value.email,
     UserPoolId: helper.poolData.id
-  }).promise().then(result => {
-    console.log('retrieve result', result);
-    return helper.success(result);
-  }).catch(err => {
-    console.log('retrieve err', err);
-    return helper.fail(err);
-  });
+  }).promise().then(helper.success).catch(helper.fail);
 });
 
 api.post('/update', req => {
@@ -129,11 +118,12 @@ api.post('/update', req => {
 
   // only admiral rank can do this
   if (!helper.isRank(auth, 'adm')) {
-    return helper.fail({message: 'Access is denied.'});
+    return helper.fail('Access is denied.');
   }
+
   const schema = Object.assign({}, UserValidation.schema);
-  delete schema['password'];
-  delete schema['confirmPassword'];
+  delete schema.password;
+  delete schema.confirmPassword;
 
   const result = Joi.validate(req.body, schema);
   if (result.error) {
@@ -156,25 +146,28 @@ api.post('/update', req => {
       params.UserAttributes.push({
         Name: `custom:${k}`,
         Value: result.value[k]
-      })
+      });
     } else {
       params.UserAttributes.push({
         Name: k,
         Value: result.value[k]
-      })
+      });
     }
   }
 
-  helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params).promise().then(result => {
-    console.log('update result', result);
-    return result;
-  });
+  helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params)
+    .promise().then(helper.success).catch(helper.fail);
 });
 
 api.post('/delete/{email}', req => {
   const auth = req.context.authorizer;
   // console.log(JSON.stringify(auth, 2));
 
+  // only admiral rank
+  if (!helper.isRank(auth, 'adm')) {
+    return helper.fail('Access is denied.');
+  }
+
   // validate
   const result = Joi.validate(req.pathParams, {
     email: UserValidation.schema.email
@@ -183,24 +176,21 @@ api.post('/delete/{email}', req => {
     return helper.fail(result);
   }
 
-  // only admiral rank
-  if (!helper.isRank(auth, 'adm')) {
-    return helper.fail({message: 'Access is denied.'});
-  }
-
   helper.cognitoIdentityServiceProvider.adminDeleteUser({
     UserPoolId: helper.poolData.id,
     Username: result.value.email
-  }).promise().then(result => {
-    console.log('delete result', result);
-    return result;
-  });
+  }).promise().then(helper.success).catch(helper.fail);
 });
 
 api.post('/disable/{email}', req => {
   const auth = req.context.authorizer;
   // console.log(JSON.stringify(auth, 2));
 
+  // only admiral rank
+  if (!helper.isRank(auth, 'adm')) {
+    return helper.fail({message: 'Access is denied.'});
+  }
+
   // validate
   const result = Joi.validate(req.pathParams, {
     email: UserValidation.schema.email
@@ -209,24 +199,21 @@ api.post('/disable/{email}', req => {
     return helper.fail(result);
   }
 
-  // only admiral rank
-  if (!helper.isRank(auth, 'adm')) {
-    return helper.fail({message: 'Access is denied.'});
-  }
-
   helper.cognitoIdentityServiceProvider.adminDisableUser({
     UserPoolId: helper.poolData.id,
     Username: result.value.email
-  }).promise().then(result => {
-    console.log('disable result', result);
-    return result;
-  });
+  }).promise().then(helper.success).catch(helper.fail);
 });
 
 api.post('/enable/{email}', req => {
   const auth = req.context.authorizer;
   // console.log(JSON.stringify(auth, 2));
 
+  // only admiral rank
+  if (!helper.isRank(auth, 'adm')) {
+    return helper.fail('Access is denied.');
+  }
+
   // validate
   const result = Joi.validate(req.pathParams, {
     email: UserValidation.schema.email
@@ -235,18 +222,10 @@ api.post('/enable/{email}', req => {
     return helper.fail(result);
   }
 
-  // only admiral rank
-  if (!helper.isRank(auth, 'adm')) {
-    return helper.fail({message: 'Access is denied.'});
-  }
-
   helper.cognitoIdentityServiceProvider.adminEnableUser({
     UserPoolId: helper.poolData.id,
     Username: result.value.email
-  }).promise().then(result => {
-    console.log('enable result', result);
-    return result;
-  });
+  }).promise().then(helper.success).catch(helper.fail);
 });
 
 /**
@@ -254,9 +233,14 @@ api.post('/enable/{email}', req => {
  * @param String  rank    adm/capt/cdr/lt/ens
  * @param String  email
  */
-api.post('/rank/{rank}/{email}', request => {
+api.post('/rank/{rank}/{email}', req => {
   const auth = req.context.authorizer;
   // console.log(JSON.stringify(auth, 2));
+
+  // only admiral rank
+  if (!helper.isRank(auth, 'adm')) {
+    return helper.fail('Access is denied.');
+  }
 
   // validate
   const result = Joi.validate(req.pathParams, {
@@ -266,7 +250,6 @@ api.post('/rank/{rank}/{email}', request => {
   if (result.error) {
     return helper.fail(result);
   }
-
 
   // setup required attributes
   const params = {
@@ -280,8 +263,6 @@ api.post('/rank/{rank}/{email}', request => {
     ]
   };
 
-  helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params).promise().then(result => {
-    console.log('rank result', result);
-    return result;
-  });
+  helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params)
+    .promise().then(helper.success).catch(helper.fail);
 });
