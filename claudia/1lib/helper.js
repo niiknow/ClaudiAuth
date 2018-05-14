@@ -13,6 +13,7 @@ const helper = {
       name: Joi.string().trim().regex(/^[a-zA-Z0-9 ]{3,100}$/).required()
     }
   },
+  userPoolArn: `arn:aws:cognito-idp:${process.env.region}:${process.env.accountNumber}:userpool/${process.env.userPoolId}`,
   translateAuthResult: result => {
     const rsp = {success: false};
 

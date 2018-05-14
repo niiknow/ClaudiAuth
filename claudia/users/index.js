@@ -5,11 +5,15 @@ const helper = require('./lib/helper');
 
 const api = new ApiBuilder();
 
+api.registerAuthorizer('MyCustomAuth', {
+  providerARNs: [helper.userPoolArn]
+});
+
 module.exports = api;
 
 api.post('/list', req => {
   const auth = req.context.authorizer;
-  console.log(JSON.stringify(auth, 2));
+  // console.log(JSON.stringify(auth, 2));
 
   // only admiral rank can do this
   if (!helper.isRank(auth, 'adm')) {
@@ -26,15 +30,18 @@ api.post('/list', req => {
   if (result.error) {
     return helper.fail(result);
   }
+  if (!result.value.filter) {
+    result.value.filter = 'cognito:user_status = "CONFIRMED"';
+  }
 
-  helper.cognitoIdentityServiceProvider.listUsers({
-    AttributesToGet: ['email', 'phone', 'given_name', 'family_name', 'custom:rank', 'custom:uid'],
+  return helper.cognitoIdentityServiceProvider.listUsers({
+    AttributesToGet: ['email', 'custom:rank', 'custom:uid'],
     Filter: result.value.filter,
     Limit: result.value.limit || 60,
     PaginationToken: result.value.page,
     UserPoolId: helper.poolData.id
   }).promise().then(helper.success).catch(helper.fail);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/create', req => {
   const auth = req.context.authorizer;
@@ -97,7 +104,7 @@ api.post('/create', req => {
 
   helper.cognitoIdentityServiceProvider.adminCreateUser(params)
     .promise().then(helper.success).catch(helper.fail);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.get('/retrieve/{email}', req => {
   const auth = req.context.authorizer;
@@ -120,7 +127,7 @@ api.get('/retrieve/{email}', req => {
     Username: result.value.email,
     UserPoolId: helper.poolData.id
   }).promise().then(helper.success).catch(helper.fail);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/update', req => {
   const auth = req.context.authorizer;
@@ -170,7 +177,7 @@ api.post('/update', req => {
 
   helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params)
     .promise().then(helper.success).catch(helper.fail);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/delete/{email}', req => {
   const auth = req.context.authorizer;
@@ -193,7 +200,7 @@ api.post('/delete/{email}', req => {
     UserPoolId: helper.poolData.id,
     Username: result.value.email
   }).promise().then(helper.success).catch(helper.fail);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/disable/{email}', req => {
   const auth = req.context.authorizer;
@@ -216,7 +223,7 @@ api.post('/disable/{email}', req => {
     UserPoolId: helper.poolData.id,
     Username: result.value.email
   }).promise().then(helper.success).catch(helper.fail);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/enable/{email}', req => {
   const auth = req.context.authorizer;
@@ -239,7 +246,7 @@ api.post('/enable/{email}', req => {
     UserPoolId: helper.poolData.id,
     Username: result.value.email
   }).promise().then(helper.success).catch(helper.fail);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 /**
  * set rank
@@ -278,4 +285,4 @@ api.post('/rank/{rank}/{email}', req => {
 
   helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params)
     .promise().then(helper.success).catch(helper.fail);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
