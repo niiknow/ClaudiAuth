@@ -1,6 +1,7 @@
 const ApiBuilder = require('claudia-api-builder');
 const Joi = require('joi');
 const helper = require('./lib/helper');
+const access = require('./lib/access');
 
 const name = 'teams';
 const api = new ApiBuilder();
@@ -10,6 +11,7 @@ module.exports = api;
 api.post('/list', req => {
   const auth = req.context.authorizer;
   const storage = helper.getStorage('s3', name);
+  console.log(access.test);
   // console.log(JSON.stringify(auth, 2));
 
   // only admiral rank and user can read

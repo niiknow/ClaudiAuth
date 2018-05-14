@@ -1,78 +1,89 @@
-const CacheManager = require('cache-manager');
-const Helper = require('./helper');
-const HelperS3 = require('./helpers3');
+const helper = require('./helper');
 
 /**
  * permission is a separate helper because it uses
  * cache to obtain and verify permission
  */
 const Access = {
+  test: 1,
   isRank: (auth, checkRank = 'adm') => {
     const rank = auth.claims['custom:rank'];
     return (rank && rank === checkRank);
   },
-  canAccessProject: (auth, pid) => {
+  canAccessProject: async (auth, pid) => {
     if (this.isRank(auth, 'adm')) {
       return {read: true, write: true};
     }
     const rst = {read: false, write: false};
     const storage = helper.getStorage('s3', 'projects');
-    const userAttr = storage.specialAttr(tid, 'users');
-    const email = auth.claims['email'];
+    const userAttr = await storage.specialAttr(pid, 'users');
+    const {email} = auth.claims.email;
 
     if (userAttr[email] === 'admin') {
-      return {read: true, write: true};
+      rst.read = true;
+      rst.write = true;
     } else if (userAttr[email] === 'user') {
       rst.read = true;
     }
 
-    const teamAttr = storage.specialAttr(pid, 'teams');
+    const teamAttr = await storage.specialAttr(pid, 'teams');
     if (teamAttr[email] === 'admin') {
-      return {read: true, write: true};
+      rst.read = true;
+      rst.write = true;
     } else if (userAttr[email] === 'user') {
       rst.read = true;
     }
 
     return rst;
   },
-  canAccessModule: (auth, pid, mname, mid) => {
-    if (this.isRank(auth, 'adm')) {
-      return {read: true, write: true};
-    }
-    const rst = {read: false, write: false};
-    const storage = helper.getStorage('s3', mname);
-    const userAttr = storage.specialAttr(mid, `${pid}/users`, '');
-    const email = auth.claims['email'];
+  canAccessModule: async (auth, pid, mid) => {
+    const rst = this.canAccessProject(auth, pid);
+    const storage = helper.getStorage('s3', 'projects');
+    const userAttr = await storage.specialAttr(pid, `${mid}/users`, '');
+    const {email} = auth.claims.email;
 
     if (userAttr[email] === 'admin') {
-      return {read: true, write: true};
+      rst.read = true;
+      rst.write = true;
     } else if (userAttr[email] === 'user') {
       rst.read = true;
     }
 
-    const teamAttr = storage.specialAttr(mid, `${pid}/teams`, '');
+    const teamAttr = await storage.specialAttr(pid, `${mid}/users`, '');
     if (teamAttr[email] === 'admin') {
-      return {read: true, write: true};
+      rst.read = true;
+      rst.write = true;
     } else if (userAttr[email] === 'user') {
       rst.read = true;
+    }
+
+    if (userAttr[email] === 'deny' || teamAttr[email] === 'deny') {
+      rst.read = false;
+      rst.write = false;
     }
 
     return rst;
   },
-  canAccessTeam: (auth, tid) => {
+  canAccessTeam: async (auth, tid) => {
     if (this.isRank(auth, 'adm')) {
       return {read: true, write: true};
     }
 
     const rst = {read: false, write: false};
     const storage = helper.getStorage('s3', 'teams');
-    const userAttr = storage.specialAttr(tid, 'users');
-    const email = auth.claims['email'];
+    const userAttr = await storage.specialAttr(tid, 'users');
+    const {email} = auth.claims.email;
 
     if (userAttr[email] === 'admin') {
-      return {read: true, write: true};
+      rst.read = true;
+      rst.write = true;
     } else if (userAttr[email] === 'user') {
       rst.read = true;
+    }
+
+    if (userAttr[email] === 'deny') {
+      rst.read = false;
+      rst.write = false;
     }
 
     return rst;

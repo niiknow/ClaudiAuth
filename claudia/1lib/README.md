@@ -27,7 +27,16 @@ aws s3api list-objects-v2 --bucket bucketName
 * One advantage of having 'tasks/' folder separately is to have longer task name, since certain/legacy s3 region has a max filename limit of 255 characters.  Another benefit is the ability to group tasks together so one can simply add a s3 trigger on prefix 'tasks/' for post edit processing, such as creating index for search.
 * Since we already prefix '*' to help with items listing, items inside of projects folder no longer show up during listing.  We can have individual project guid subfolder to store related data.
 ```
-projects/project-guid/index.json
-projects/project-guid/users.json
-projects/project-guid/teams.json
+projects/project-guid/*index.json
+projects/project-guid/*users.json
+projects/project-guid/*teams.json
+```
+
+## Advance Access/Permission
+* Permissions are setup at the Project level.
+* User and Team is either an 'admin', 'user', or 'deny' role to a Project or Module.  An 'user' has read permission, while an Admin has read and write permission.
+* Special 'deny' role is use to specifically deny a 'user' or 'team'.  This is a specific role that override the two other roles.  The access permissions are stored as:
+```
+projects/project-guid/module-guid/users.json
+projects/project-guid/module-guid/teams.json
 ```

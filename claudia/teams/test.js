@@ -1,8 +1,8 @@
 import test from 'ava';
 import sinon from 'sinon';
+import uuidv4 from 'uuid/v4';
 import helper from './lib/helper';
 import m from '.';
-import uuidv4 from 'uuid/v4';
 
 test.beforeEach(t => {
   t.context.done = sinon.spy();
