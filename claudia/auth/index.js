@@ -57,16 +57,25 @@ api.post('/signup', req => {
   if (result.error) {
     return helper.fail(result);
   }
+  const uuid = helper.uuidEmail(result.value.email);
 
   // setup required attributes
   const params = {
     ClientId: helper.poolData.clientId,
-    Username: result.value.email,
+    Username: uuid,
     Password: result.value.password,
     UserAttributes: [
       {
+        Name: 'preferred_username',
+        Value: uuid
+      },
+      {
+        Name: 'email',
+        Value: result.value.email
+      },
+      {
         Name: 'custom:uid',
-        Value: helper.uuidEmail(result.value.email)
+        Value: uuid
       },
       {
         Name: 'custom:rank',
@@ -110,7 +119,8 @@ api.post('/signup-confirm', req => {
   const params = {
     ClientId: helper.poolData.clientId,
     Username: result.value.email,
-    ConfirmationCode: result.value.confirmationCode
+    ConfirmationCode: result.value.confirmationCode,
+    ForceAliasCreation: true
   };
 
   helper.cognitoIdentityServiceProvider.confirmSignUp(params).promise()

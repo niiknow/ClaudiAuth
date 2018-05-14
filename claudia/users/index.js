@@ -49,16 +49,26 @@ api.post('/create', req => {
   if (result.error) {
     return helper.fail(result);
   }
+  const uuid = helper.uuidEmail(result.value.email);
 
   // setup required attributes
   const params = {
     UserPoolId: helper.poolData.id,
     Username: result.value.email,
     TemporaryPassword: result.value.password,
+    ForceAliasCreation: true,
     UserAttributes: [
       {
+        Name: 'preferred_username',
+        Value: uuid
+      },
+      {
+        Name: 'email',
+        Value: result.value.email
+      },
+      {
         Name: 'custom:uid',
-        Value: helper.uuidEmail(result.value.email)
+        Value: uuid
       },
       {
         Name: 'custom:rank',

@@ -19,7 +19,7 @@
       "AllowAdminCreateUserOnly": false,
 		  "UnusedAccountValidityDays": 120
     },
-    "AliasAttributes": ["email"],
+    "AliasAttributes": ["preferred_username","email"],
     "UserPoolTags": {
       "ClaudiAuth": "App"
     },
