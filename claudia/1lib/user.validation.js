@@ -37,7 +37,10 @@ const schema = {
     create_at: Joi.string(),
     update_at: Joi.string(),
     enabled: Joi.boolean(),
-    status: Joi.string()
+    status: Joi.string(),
+    email_verified: Joi.boolean(),
+    phone_number_verified: Joi.boolean(),
+    website: Joi.string().trim().uri()
   },
   custom: [
     'is_retired', 'occupation', 'employer',

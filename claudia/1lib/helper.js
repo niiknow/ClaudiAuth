@@ -25,23 +25,21 @@ class Helper {
   translateAuthResult(result) {
     const rsp = {success: false};
 
-    if (result) {
-      if (result.AuthenticationResult && result.AuthenticationResult.TokenType) {
-        const rst = result.AuthenticationResult;
-        rsp.success = true;
-        rsp.access_token = rst.IdToken;
-        rsp.access_token2 = rst.AccessToken;
-        rsp.refresh_token = rst.RefreshToken;
-        rsp.expires_in = rst.ExpiresIn;
-        rsp.type = rst.TokenType;
-      }
-      if (result.ChallengeName) {
-        rsp.next = {
-          challenge: result.ChallengeName,
-          challenge_parameters: result.ChallengeParameters,
-          session: result.Session
-        };
-      }
+    if (result.AuthenticationResult && result.AuthenticationResult.TokenType) {
+      const rst = result.AuthenticationResult;
+      rsp.success = true;
+      rsp.access_token = rst.IdToken;
+      rsp.access_token2 = rst.AccessToken;
+      rsp.refresh_token = rst.RefreshToken;
+      rsp.expires_in = rst.ExpiresIn;
+      rsp.type = rst.TokenType;
+    }
+    if (result.ChallengeName) {
+      rsp.next = {
+        challenge: result.ChallengeName,
+        challenge_parameters: result.ChallengeParameters,
+        session: result.Session
+      };
     }
 
     return rsp;

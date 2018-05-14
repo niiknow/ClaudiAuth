@@ -32,6 +32,40 @@ api.post('/login', req => {
   }).promise().then(helper.translateAuthResult);
 });
 
+api.post('/login-new-password', req => {
+  // validate
+  const result = Joi.validate(req.body, {
+    password: UserValidation.schema.password,
+    confirmPassword: UserValidation.schema.confirmPassword,
+    session: Joi.string().trim().required(),
+    email: UserValidation.schema.email
+  });
+  if (result.error) {
+    return helper.fail(result);
+  }
+
+  return helper.getUserByEmail(result.value.email).then(rst => {
+    if (rst.Users[0]) {
+      return helper.cognitoIdentityServiceProvider.respondToAuthChallenge({
+        ChallengeName: 'NEW_PASSWORD_REQUIRED',
+        ChallengeResponses: {
+          USERNAME: rst.Users[0].Username,
+          PASSWORD: result.value.password
+        },
+        ClientId: helper.poolData.clientId,
+        Session: result.value.session
+      }).promise().then(helper.translateAuthResult);
+    }
+
+    return helper.fail({
+      error: {
+        message: 'User does not exist.',
+        code: 'UserNotFoundException'
+      }
+    });
+  }).catch(helper.fail);
+});
+
 api.post('/refresh', req => {
   // validate
   const result = Joi.validate(req.body, {
@@ -60,17 +94,9 @@ api.post('/signup', req => {
   // setup required attributes
   const params = {
     ClientId: helper.poolData.clientId,
-    Username: uuid,
+    Username: result.value.email,
     Password: result.value.password,
     UserAttributes: [
-      {
-        Name: 'preferred_username',
-        Value: uuid
-      },
-      {
-        Name: 'email',
-        Value: result.value.email
-      },
       {
         Name: 'custom:uid',
         Value: uuid
@@ -86,7 +112,8 @@ api.post('/signup', req => {
     if ([
       'password', 'confirmPassword', 'uid',
       'rank', 'teams', 'email', 'preferred_username',
-      'create_at', 'update_at', 'enabled', 'status'
+      'create_at', 'update_at', 'enabled', 'status',
+      'email_verified', 'phone_number_verified'
     ].indexOf(k) > -1) {
       continue;
     }
@@ -118,15 +145,26 @@ api.post('/signup-confirm', req => {
     return helper.fail(result);
   }
 
-  const params = {
-    ClientId: helper.poolData.clientId,
-    Username: result.value.email,
-    ConfirmationCode: result.value.confirmationCode,
-    ForceAliasCreation: true
-  };
+  return helper.getUserByEmail(result.value.email).then(rst => {
+    if (rst.Users[0]) {
+      const params = {
+        ClientId: helper.poolData.clientId,
+        Username: rst.Users[0].Username,
+        ConfirmationCode: result.value.confirmationCode,
+        ForceAliasCreation: true
+      };
 
-  return helper.cognitoIdentityServiceProvider.confirmSignUp(params).promise()
-    .then(helper.success).catch(helper.fail);
+      return helper.cognitoIdentityServiceProvider.confirmSignUp(params).promise()
+        .then(helper.success).catch(helper.fail);
+    }
+
+    return helper.fail({
+      error: {
+        message: 'User does not exist.',
+        code: 'UserNotFoundException'
+      }
+    });
+  }).catch(helper.fail);
 });
 
 api.post('/signup-confirm-resend', req => {
@@ -138,13 +176,24 @@ api.post('/signup-confirm-resend', req => {
     return helper.fail(result);
   }
 
-  const params = {
-    ClientId: helper.poolData.clientId,
-    Username: result.value.email
-  };
+  return helper.getUserByEmail(result.value.email).then(rst => {
+    if (rst.Users[0]) {
+      const params = {
+        ClientId: helper.poolData.clientId,
+        Username: rst.Users[0].Username
+      };
 
-  return helper.cognitoIdentityServiceProvider.resendConfirmationCode(params).promise()
-    .then(helper.success).catch(helper.fail);
+      return helper.cognitoIdentityServiceProvider.resendConfirmationCode(params).promise()
+        .then(helper.success).catch(helper.fail);
+    }
+
+    return helper.fail({
+      error: {
+        message: 'User does not exist.',
+        code: 'UserNotFoundException'
+      }
+    });
+  }).catch(helper.fail);
 });
 
 api.post('/change-password', req => {
@@ -177,13 +226,24 @@ api.post('/forgot-password', req => {
     return helper.fail(result);
   }
 
-  const params = {
-    ClientId: helper.poolData.clientId,
-    Username: result.value.email
-  };
+  return helper.getUserByEmail(result.value.email).then(rst => {
+    if (rst.Users[0]) {
+      const params = {
+        ClientId: helper.poolData.clientId,
+        Username: rst.Users[0].Username
+      };
 
-  return helper.cognitoIdentityServiceProvider.forgotPassword(params).promise()
-    .then(helper.success).catch(helper.fail);
+      return helper.cognitoIdentityServiceProvider.forgotPassword(params).promise()
+        .then(helper.success).catch(helper.fail);
+    }
+
+    return helper.fail({
+      error: {
+        message: 'User does not exist.',
+        code: 'UserNotFoundException'
+      }
+    });
+  }).catch(helper.fail);
 });
 
 api.post('/forgot-password-confirm', req => {
@@ -197,13 +257,24 @@ api.post('/forgot-password-confirm', req => {
     return helper.fail(result);
   }
 
-  const params = {
-    ClientId: helper.poolData.clientId,
-    Username: result.value.username,
-    ConfirmationCode: result.value.confirmationCode,
-    Password: result.value.password
-  };
+  return helper.getUserByEmail(result.value.email).then(rst => {
+    if (rst.Users[0]) {
+      const params = {
+        ClientId: helper.poolData.clientId,
+        Username: rst.Users[0].Username,
+        ConfirmationCode: result.value.confirmationCode,
+        Password: result.value.password
+      };
 
-  return helper.cognitoIdentityServiceProvider.confirmForgotPassword(params).promise()
-    .then(helper.success).catch(helper.fail);
+      return helper.cognitoIdentityServiceProvider.confirmForgotPassword(params).promise()
+        .then(helper.success).catch(helper.fail);
+    }
+
+    return helper.fail({
+      error: {
+        message: 'User does not exist.',
+        code: 'UserNotFoundException'
+      }
+    });
+  }).catch(helper.fail);
 });

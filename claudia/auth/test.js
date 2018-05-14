@@ -19,6 +19,16 @@ test.serial('/login success with valid values', async t => {
           });
         }
       };
+    },
+    listUsers: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
     }
   });
 
@@ -51,6 +61,16 @@ test.serial('/refresh success with valid values', async t => {
           });
         }
       };
+    },
+    listUsers: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
     }
   });
 
@@ -74,6 +94,16 @@ test.serial('/signup success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     signUp: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
+    },
+    listUsers: () => {
       actual = true;
       return {
         promise: () => {
@@ -160,6 +190,16 @@ test.serial('/signup-confirm success with valid values', async t => {
           });
         }
       };
+    },
+    listUsers: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
     }
   });
 
@@ -192,6 +232,16 @@ test.serial('/signup-confirm-resend success with valid values', async t => {
           });
         }
       };
+    },
+    listUsers: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
     }
   });
 
@@ -215,6 +265,16 @@ test.serial('/change-password success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     changePassword: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
+    },
+    listUsers: () => {
       actual = true;
       return {
         promise: () => {
@@ -256,6 +316,16 @@ test.serial('/forgot-password success with valid values', async t => {
           });
         }
       };
+    },
+    listUsers: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
     }
   });
 
@@ -279,6 +349,16 @@ test.serial('/forgot-password-confirm success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     confirmForgotPassword: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
+    },
+    listUsers: () => {
       actual = true;
       return {
         promise: () => {

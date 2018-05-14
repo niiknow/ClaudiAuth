@@ -39,18 +39,10 @@ read PASSWORD
 ( cat <<EOF
 {
   "UserPoolId": "$userPoolId",
-  "Username": "$USERNAME",
+  "Username": "$EMAIL",
   "MessageAction": "SUPPRESS",
   "ForceAliasCreation": false,
   "UserAttributes": [
-    {
-        "Name": "preferred_username",
-        "Value": "$USERNAME"
-    },
-    {
-        "Name": "email",
-        "Value": "$EMAIL"
-    },
     {
         "Name": "custom:teams",
         "Value": "x,y,z"

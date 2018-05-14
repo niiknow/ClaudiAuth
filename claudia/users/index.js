@@ -77,14 +77,6 @@ api.post('/create', req => {
     ForceAliasCreation: true,
     UserAttributes: [
       {
-        Name: 'preferred_username',
-        Value: uuid
-      },
-      {
-        Name: 'email',
-        Value: result.value.email
-      },
-      {
         Name: 'custom:uid',
         Value: uuid
       },
@@ -99,7 +91,8 @@ api.post('/create', req => {
     if ([
       'password', 'confirmPassword', 'uid',
       'rank', 'teams', 'email', 'preferred_username',
-      'create_at', 'update_at', 'enabled', 'status'
+      'create_at', 'update_at', 'enabled', 'status',
+      'email_verified', 'phone_number_verified'
     ].indexOf(k) > -1) {
       continue;
     }
@@ -183,7 +176,8 @@ api.post('/update', req => {
     if ([
       'password', 'confirmPassword', 'uid',
       'rank', 'teams', 'email', 'preferred_username',
-      'create_at', 'update_at', 'enabled', 'status'
+      'create_at', 'update_at', 'enabled', 'status',
+      'email_verified', 'phone_number_verified'
     ].indexOf(k) > -1) {
       continue;
     }
