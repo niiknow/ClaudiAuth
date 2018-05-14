@@ -1,0 +1,11 @@
+{
+  "lambda": {
+    "role": "cda-auth-executor",
+    "name": "cda-auth",
+    "region": "us-west-2"
+  },
+  "api": {
+    "id": "lmwwxq9eeh",
+    "module": "index"
+  }
+}

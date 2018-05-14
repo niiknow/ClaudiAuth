@@ -36,7 +36,6 @@ api.post('/login-new-password', req => {
   // validate
   const result = Joi.validate(req.body, {
     password: UserValidation.schema.password,
-    confirmPassword: UserValidation.schema.confirmPassword,
     session: Joi.string().trim().required(),
     email: UserValidation.schema.email
   });
@@ -48,7 +47,7 @@ api.post('/login-new-password', req => {
     ChallengeName: 'NEW_PASSWORD_REQUIRED',
     ChallengeResponses: {
       USERNAME: result.value.email,
-      PASSWORD: result.value.password
+      NEW_PASSWORD: result.value.password
     },
     ClientId: helper.poolData.clientId,
     Session: result.value.session

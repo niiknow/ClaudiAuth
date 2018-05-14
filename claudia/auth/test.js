@@ -49,6 +49,49 @@ test.serial('/login success with valid values', async t => {
   t.pass();
 });
 
+test.serial('/login-new-password success with valid values', async t => {
+  let actual = false;
+  const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
+    respondToAuthChallenge: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
+    },
+    listUsers: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
+    }
+  });
+
+  await m.proxyRouter({
+    requestContext: {
+      resourcePath: '/login-new-password',
+      httpMethod: 'POST',
+      authorizer: {claims: {'custom:rank': 'adm'}}
+    },
+    body: {
+      email: 'friends@niiknow.org',
+      password: 'TakeAGuess!1',
+      session: 'aasdf'
+    }
+  }, t.context);
+
+  helperMock.restore();
+  t.true(actual);
+  t.pass();
+});
+
 test.serial('/refresh success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
