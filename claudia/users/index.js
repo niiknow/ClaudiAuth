@@ -148,7 +148,10 @@ api.post('/update', req => {
   };
 
   for (const k in result.value) {
-    if (['password', 'confirmPassword', 'uid', 'rank'].indexOf(k) > -1) {
+    if ([
+      'password', 'confirmPassword', 'uid',
+      'rank', 'email', 'preferred_username'
+    ].indexOf(k) > -1) {
       continue;
     }
 
