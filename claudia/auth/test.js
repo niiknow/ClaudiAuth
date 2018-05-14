@@ -10,7 +10,7 @@ test.beforeEach(t => {
 test.serial('/login success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
-    adminInitiateAuth: () => {
+    initiateAuth: () => {
       actual = true;
       return {
         promise: () => {
@@ -42,7 +42,7 @@ test.serial('/login success with valid values', async t => {
 test.serial('/refresh success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
-    adminInitiateAuth: () => {
+    initiateAuth: () => {
       actual = true;
       return {
         promise: () => {

@@ -1,6 +1,7 @@
 const ApiBuilder = require('claudia-api-builder');
 const Joi = require('joi');
 const helper = require('./lib/helper');
+const Access = require('./lib/access');
 
 const name = 'template';
 const api = new ApiBuilder();
@@ -17,7 +18,7 @@ api.post('/list', req => {
   // console.log(JSON.stringify(auth, 2));
 
   // only admiral rank and user can read
-  if (!helper.isRank(auth, 'adm')) {
+  if (!Access.isRank(auth, 'adm')) {
     return helper.fail('Access is denied');
   }
 
@@ -38,7 +39,7 @@ api.post('/create', req => {
   }
 
   // only admiral rank and user can read
-  if (!helper.isRank(auth, 'adm')) {
+  if (!Access.isRank(auth, 'adm')) {
     return helper.fail('Access is denied');
   }
 
@@ -59,7 +60,7 @@ api.get('/retrieve/{id}', req => {
   }
 
   // only admiral rank and user can read
-  if (!helper.isRank(auth, 'adm')) {
+  if (!Access.isRank(auth, 'adm')) {
     return helper.fail('Access is denied');
   }
 
@@ -81,7 +82,7 @@ api.post('/update', req => {
   }
 
   // only admiral rank and user can read
-  if (!helper.isRank(auth, 'adm')) {
+  if (!Access.isRank(auth, 'adm')) {
     return helper.fail('Access is denied');
   }
 
@@ -102,7 +103,7 @@ api.post('/delete/{id}', req => {
   }
 
   // only admiral rank and user can read
-  if (!helper.isRank(auth, 'adm')) {
+  if (!Access.isRank(auth, 'adm')) {
     return helper.fail('Access is denied');
   }
 

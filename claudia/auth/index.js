@@ -11,7 +11,7 @@ module.exports = api;
 // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/CognitoIdentityServiceProvider.html
 
 api.post('/login', req => {
-  const authFlow = req.body.secure ? 'USER_PASSWORD_AUTH' : 'ADMIN_NO_SRP_AUTH';
+  const authFlow = req.body.custom ? 'CUSTOM_AUTH' : 'USER_PASSWORD_AUTH';
 
   // validate
   const result = Joi.validate(req.body, {
@@ -22,37 +22,13 @@ api.post('/login', req => {
     return helper.fail(result);
   }
 
-  return helper.cognitoIdentityServiceProvider.adminInitiateAuth({
+  return helper.cognitoIdentityServiceProvider.initiateAuth({
     AuthFlow: authFlow,
     AuthParameters: {
       USERNAME: result.value.email,
       PASSWORD: result.value.password
     },
-    ClientId: helper.poolData.clientId,
-    UserPoolId: helper.poolData.id
-  }).promise().then(helper.translateAuthResult);
-});
-
-api.post('/login-new-password', req => {
-  const authFlow = req.body.secure ? 'USER_PASSWORD_AUTH' : 'ADMIN_NO_SRP_AUTH';
-
-  // validate
-  const result = Joi.validate(req.body, {
-    email: UserValidation.schema.email,
-    password: Joi.string().required()
-  });
-  if (result.error) {
-    return helper.fail(result);
-  }
-
-  return helper.cognitoIdentityServiceProvider.adminInitiateAuth({
-    AuthFlow: authFlow,
-    AuthParameters: {
-      USERNAME: result.value.email,
-      PASSWORD: result.value.password
-    },
-    ClientId: helper.poolData.clientId,
-    UserPoolId: helper.poolData.id
+    ClientId: helper.poolData.clientId
   }).promise().then(helper.translateAuthResult);
 });
 
@@ -65,13 +41,12 @@ api.post('/refresh', req => {
     return helper.fail(result);
   }
 
-  return helper.cognitoIdentityServiceProvider.adminInitiateAuth({
+  return helper.cognitoIdentityServiceProvider.initiateAuth({
     AuthFlow: 'REFRESH_TOKEN_AUTH',
     AuthParameters: {
       REFRESH_TOKEN: result.value.refresh_token
     },
-    ClientId: helper.poolData.clientId,
-    UserPoolId: helper.poolData.id
+    ClientId: helper.poolData.clientId
   }).promise().then(helper.translateAuthResult);
 });
 
@@ -110,7 +85,7 @@ api.post('/signup', req => {
   for (const k in result.value) {
     if ([
       'password', 'confirmPassword', 'uid',
-      'rank', 'email', 'preferred_username',
+      'rank', 'teams', 'email', 'preferred_username',
       'create_at', 'update_at', 'enabled', 'status'
     ].indexOf(k) > -1) {
       continue;

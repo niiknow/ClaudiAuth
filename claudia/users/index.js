@@ -98,7 +98,7 @@ api.post('/create', req => {
   for (const k in result.value) {
     if ([
       'password', 'confirmPassword', 'uid',
-      'rank', 'email', 'preferred_username',
+      'rank', 'teams', 'email', 'preferred_username',
       'create_at', 'update_at', 'enabled', 'status'
     ].indexOf(k) > -1) {
       continue;
@@ -182,7 +182,7 @@ api.post('/update', req => {
   for (const k in result.value) {
     if ([
       'password', 'confirmPassword', 'uid',
-      'rank', 'email', 'preferred_username',
+      'rank', 'teams', 'email', 'preferred_username',
       'create_at', 'update_at', 'enabled', 'status'
     ].indexOf(k) > -1) {
       continue;
