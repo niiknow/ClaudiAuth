@@ -180,7 +180,7 @@ test.serial('/signup-confirm success with valid values', async t => {
   t.pass();
 });
 
-test.serial('/confirm-resend success with valid values', async t => {
+test.serial('/signup-confirm-resend success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     resendConfirmationCode: () => {
@@ -197,7 +197,7 @@ test.serial('/confirm-resend success with valid values', async t => {
 
   await m.proxyRouter({
     requestContext: {
-      resourcePath: '/confirm-resend',
+      resourcePath: '/signup-confirm-resend',
       httpMethod: 'POST',
       authorizer: {claims: {'custom:rank': 'adm'}}
     },

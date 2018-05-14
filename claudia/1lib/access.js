@@ -4,15 +4,18 @@ const helper = require('./helper');
  * permission is a separate helper because it uses
  * cache to obtain and verify permission
  */
-const Access = {
-  isRank: (auth, checkRank = 'adm') => {
+class AccessHelper {
+  isRank(auth, checkRank = 'adm') {
     const rank = auth.claims['custom:rank'];
+
     return (rank && rank === checkRank);
-  },
-  canAccessProject: async (auth, pid) => {
+  }
+
+  async canAccessProject(auth, pid) {
     if (this.isRank(auth, 'adm')) {
       return {read: true, write: true, acces: 'admin'};
     }
+
     const rst = {read: false, write: false, access: ''};
     const storage = helper.getStorage('s3', 'projects');
     const userAttr = await storage.specialAttr(pid, 'users');
@@ -38,11 +41,13 @@ const Access = {
     }
 
     return rst;
-  },
-  canAccessModule: async (auth, pid, mid) => {
+  }
+
+  async canAccessModule(auth, pid, mid) {
     if (this.isRank(auth, 'adm')) {
       return {read: true, write: true, acces: 'admin'};
     }
+
     const rst = this.canAccessProject(auth, pid);
     const storage = helper.getStorage('s3', 'projects');
     const userAttr = await storage.specialAttr(pid, `${mid}/users`, null, '');
@@ -74,8 +79,9 @@ const Access = {
     }
 
     return rst;
-  },
-  canAccessTeam: async (auth, tid) => {
+  }
+
+  async canAccessTeam(auth, tid) {
     if (this.isRank(auth, 'adm')) {
       return {read: true, write: true, acces: 'admin'};
     }
@@ -102,6 +108,8 @@ const Access = {
 
     return rst;
   }
-};
+}
 
-module.exports = Access;
+const access = new AccessHelper();
+
+module.exports = access;

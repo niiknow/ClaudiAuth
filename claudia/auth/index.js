@@ -33,6 +33,29 @@ api.post('/login', req => {
   }).promise().then(helper.translateAuthResult);
 });
 
+api.post('/login-new-password', req => {
+  const authFlow = req.body.secure ? 'USER_PASSWORD_AUTH' : 'ADMIN_NO_SRP_AUTH';
+
+  // validate
+  const result = Joi.validate(req.body, {
+    email: UserValidation.schema.email,
+    password: Joi.string().required()
+  });
+  if (result.error) {
+    return helper.fail(result);
+  }
+
+  return helper.cognitoIdentityServiceProvider.adminInitiateAuth({
+    AuthFlow: authFlow,
+    AuthParameters: {
+      USERNAME: result.value.email,
+      PASSWORD: result.value.password
+    },
+    ClientId: helper.poolData.clientId,
+    UserPoolId: helper.poolData.id
+  }).promise().then(helper.translateAuthResult);
+});
+
 api.post('/refresh', req => {
   // validate
   const result = Joi.validate(req.body, {
@@ -131,7 +154,7 @@ api.post('/signup-confirm', req => {
     .then(helper.success).catch(helper.fail);
 });
 
-api.post('/confirm-resend', req => {
+api.post('/signup-confirm-resend', req => {
   // validate
   const result = Joi.validate(req.body, {
     email: UserValidation.schema.email
