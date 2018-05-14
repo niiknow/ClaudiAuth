@@ -1,10 +1,10 @@
 {
-  "name": "template",
+  "name": "cda-teams",
   "version": "1.0.0",
-  "description": "Lambda function for template api",
+  "description": "Lambda function for cda-teams api",
   "scripts": {
-    "test": "mkdir -p lib && rsync -a ../1lib/*.js lib/ && xo && nyc ava",
-    "create": "claudia create --region us-west-2 --timeout 10 --api-module index --set-env-from-json ../../.env.dev.json",
+    "test": "mkdir -p lib && rsync -a ../1lib/*.js ./lib/ && xo && nyc ava",
+    "create": "claudia create --region us-west-2 --timeout 10 --api-module index --set-env-from-json ../../.env.dev.json --policies ../../aws/default_policies/",
     "update": "claudia update --set-env-from-json ../../.env.dev.json",
     "update-stg": "claudia update --version stg --set-env-from-json ../../.env.stg.json",
     "update-prd": "claudia update --version prd --set-env-from-json ../../.env.prd.json"
@@ -18,7 +18,7 @@
     "uuid": "^3.2.1"
   },
   "optionalDependencies": {
-    "aws-sdk": "^2.238.1"
+    "aws-sdk": "^2.235.1"
   },
   "devDependencies": {
     "ava": "^0.25.0",
@@ -31,7 +31,8 @@
     "node": ">=8"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "lib/*.js"
   ],
   "keywords": [
     ""

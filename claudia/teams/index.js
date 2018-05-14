@@ -6,6 +6,10 @@ const AccessHelper = require('./lib/access');
 const name = 'teams';
 const api = new ApiBuilder();
 
+api.registerAuthorizer('MyCustomAuth', {
+  providerARNs: [helper.userPoolArn]
+});
+
 module.exports = api;
 
 api.post('/list', async req => {
@@ -31,7 +35,7 @@ api.post('/list', async req => {
 
     return helper.success(rst);
   }).catch(helper.fail);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/create', req => {
   const auth = req.context.authorizer;
@@ -53,7 +57,7 @@ api.post('/create', req => {
   }
 
   return storage.save(result.value);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.get('/retrieve/{id}', req => {
   const auth = req.context.authorizer;
@@ -75,7 +79,7 @@ api.get('/retrieve/{id}', req => {
   }
 
   return helper.fail('Access is denied');
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/update', req => {
   const auth = req.context.authorizer;
@@ -98,7 +102,7 @@ api.post('/update', req => {
   }
 
   return helper.fail('Access is denied');
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/delete/{id}', req => {
   const auth = req.context.authorizer;
@@ -119,7 +123,7 @@ api.post('/delete/{id}', req => {
   }
 
   return helper.fail('Access is denied');
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/{id}/access/{access}/user/{uid}', req => {
   const auth = req.context.authorizer;
@@ -146,4 +150,4 @@ api.post('/{id}/access/{access}/user/{uid}', req => {
   }
 
   return helper.fail('Access is denied');
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});

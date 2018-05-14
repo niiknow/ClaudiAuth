@@ -104,7 +104,7 @@ api.post('/create', req => {
 
   helper.cognitoIdentityServiceProvider.adminCreateUser(params)
     .promise().then(helper.success).catch(helper.fail);
-}, {cognitoAuthorizer: 'MyCustomAuth'}, {cognitoAuthorizer: 'MyCustomAuth'});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.get('/retrieve/{email}', req => {
   const auth = req.context.authorizer;

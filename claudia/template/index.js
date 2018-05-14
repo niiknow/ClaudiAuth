@@ -5,6 +5,10 @@ const helper = require('./lib/helper');
 const name = 'template';
 const api = new ApiBuilder();
 
+api.registerAuthorizer('MyCustomAuth', {
+  providerARNs: [helper.userPoolArn]
+});
+
 module.exports = api;
 
 api.post('/list', req => {
@@ -18,7 +22,7 @@ api.post('/list', req => {
   }
 
   return storage.list();
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/create', req => {
   const auth = req.context.authorizer;
@@ -39,7 +43,7 @@ api.post('/create', req => {
   }
 
   return storage.save(result.value);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.get('/retrieve/{id}', req => {
   const auth = req.context.authorizer;
@@ -60,7 +64,7 @@ api.get('/retrieve/{id}', req => {
   }
 
   return storage.retrieve(result.value.id);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/update', req => {
   const auth = req.context.authorizer;
@@ -82,7 +86,7 @@ api.post('/update', req => {
   }
 
   return storage.save(result.value);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/delete/{id}', req => {
   const auth = req.context.authorizer;
@@ -103,4 +107,4 @@ api.post('/delete/{id}', req => {
   }
 
   return storage.delete(result.value.id);
-});
+}, {cognitoAuthorizer: 'MyCustomAuth'});
