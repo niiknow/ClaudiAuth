@@ -140,15 +140,16 @@ class StorageS3 {
       .deleteObject(`${id}/index.json`);
   }
 
-  specialAttr(id, name, value) {
+  specialAttr(id, name, value, prefix = '*') {
     const $this = this;
     if (!$this.isValid({id: id, name: name}) || (name.toLowerCase() === 'index')) {
       return new Promise((resolve, reject) => {
         reject(new Error('Invalid item id or attribute name'));
       });
     }
+    const storageName = `${id}/${prefix}${name}.json`;
 
-    return $this._s3.getObject(`${id}/${name}.json`)
+    return $this._s3.getObject(storageName)
       .then(rst => {
         const existingItem = JSON.parse((rst.Body || '{}').toString());
 
@@ -161,7 +162,7 @@ class StorageS3 {
             }
           }
           return $this._s3
-            .saveObject(`${id}/${name}.json`, JSON.stringify(newItem));
+            .saveObject(storageName, JSON.stringify(newItem));
         }
 
         return existingItem;
