@@ -141,6 +141,7 @@ api.post('/{id}/access/{access}/user/{uid}', req => {
     const payload = {};
     payload[result.value.uid] = result.value.access;
 
+    // remember to add team to user here
     return storage.specialAttr(result.value.id, 'users', payload);
   }
 

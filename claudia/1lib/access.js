@@ -46,7 +46,7 @@ const Access = {
     }
     const rst = this.canAccessProject(auth, pid);
     const storage = helper.getStorage('s3', 'projects');
-    const userAttr = await storage.specialAttr(pid, `${mid}/users`, '');
+    const userAttr = await storage.specialAttr(pid, `${mid}/users`, null, '');
     const {uid} = auth.claims['custom:uid'];
 
     if (userAttr[uid] === 'admin') {
@@ -58,7 +58,7 @@ const Access = {
       rst.access = 'user';
     }
 
-    const teamAttr = await storage.specialAttr(pid, `${mid}/users`, '');
+    const teamAttr = await storage.specialAttr(pid, `${mid}/users`, null, '');
     if (teamAttr[uid] === 'admin') {
       rst.read = true;
       rst.write = true;
