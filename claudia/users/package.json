@@ -1,7 +1,7 @@
 {
-  "name": "users",
+  "name": "cda-users",
   "version": "1.0.0",
-  "description": "Lambda function for users api",
+  "description": "Lambda function for cda-users api",
   "scripts": {
     "test": "mkdir -p lib && rsync -a ../1lib/*.js ./lib/ && xo && nyc ava",
     "create": "mkdir -p lib && rsync -a ../1lib/*.js ./lib/ && claudia create --region us-west-2 --timeout 10 --api-module index --set-env-from-json ../../.env.dev.json --policies ../../aws/default_policies/",
