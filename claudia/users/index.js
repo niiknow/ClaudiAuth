@@ -131,21 +131,10 @@ api.get('/retrieve/{email}', req => {
     return helper.fail('Access is denied.');
   }
 
-  return helper.getUserByEmail(result.value.email).then(rst => {
-    if (rst.Users[0]) {
-      return helper.cognitoIdentityServiceProvider.adminGetUser({
-        Username: rst.Users[0].Username,
-        UserPoolId: helper.poolData.id
-      }).promise().then(helper.success).catch(helper.fail);
-    }
-
-    return helper.fail({
-      error: {
-        message: 'User does not exist.',
-        code: 'UserNotFoundException'
-      }
-    });
-  }).catch(helper.fail);
+  return helper.cognitoIdentityServiceProvider.adminGetUser({
+    Username: result.value.email,
+    UserPoolId: helper.poolData.id
+  }).promise().then(helper.success).catch(helper.fail);
 }, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/update', req => {
@@ -169,6 +158,7 @@ api.post('/update', req => {
   // setup required attributes
   const params = {
     UserPoolId: helper.poolData.id,
+    Username: result.value.email,
     UserAttributes: []
   };
 
@@ -195,21 +185,9 @@ api.post('/update', req => {
     }
   }
 
-  return helper.getUserByEmail(result.value.email).then(rst => {
-    if (rst.Users[0]) {
-      // setup required attributes
-      params.Username = rst.Users[0].Username;
-      return helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params)
-        .promise().then(helper.success).catch(helper.fail);
-    }
-
-    return helper.fail({
-      error: {
-        message: 'User does not exist.',
-        code: 'UserNotFoundException'
-      }
-    });
-  }).catch(helper.fail);
+  // setup required attributes
+  return helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params)
+    .promise().then(helper.success).catch(helper.fail);
 }, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/delete/{email}', req => {
@@ -229,21 +207,10 @@ api.post('/delete/{email}', req => {
     return helper.fail(result);
   }
 
-  return helper.getUserByEmail(result.value.email).then(rst => {
-    if (rst.Users[0]) {
-      return helper.cognitoIdentityServiceProvider.adminDeleteUser({
-        UserPoolId: helper.poolData.id,
-        Username: rst.Users[0].Username
-      }).promise().then(helper.success).catch(helper.fail);
-    }
-
-    return helper.fail({
-      error: {
-        message: 'User does not exist.',
-        code: 'UserNotFoundException'
-      }
-    });
-  }).catch(helper.fail);
+  return helper.cognitoIdentityServiceProvider.adminDeleteUser({
+    UserPoolId: helper.poolData.id,
+    Username: result.value.email
+  }).promise().then(helper.success).catch(helper.fail);
 }, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/disable/{email}', req => {
@@ -263,21 +230,10 @@ api.post('/disable/{email}', req => {
     return helper.fail(result);
   }
 
-  return helper.getUserByEmail(result.value.email).then(rst => {
-    if (rst.Users[0]) {
-      return helper.cognitoIdentityServiceProvider.adminDisableUser({
-        UserPoolId: helper.poolData.id,
-        Username: rst.Users[0].Username
-      }).promise().then(helper.success).catch(helper.fail);
-    }
-
-    return helper.fail({
-      error: {
-        message: 'User does not exist.',
-        code: 'UserNotFoundException'
-      }
-    });
-  }).catch(helper.fail);
+  return helper.cognitoIdentityServiceProvider.adminDisableUser({
+    UserPoolId: helper.poolData.id,
+    Username: result.value.email
+  }).promise().then(helper.success).catch(helper.fail);
 }, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/enable/{email}', req => {
@@ -297,21 +253,10 @@ api.post('/enable/{email}', req => {
     return helper.fail(result);
   }
 
-  return helper.getUserByEmail(result.value.email).then(rst => {
-    if (rst.Users[0]) {
-      return helper.cognitoIdentityServiceProvider.adminEnableUser({
-        UserPoolId: helper.poolData.id,
-        Username: rst.Users[0].Username
-      }).promise().then(helper.success).catch(helper.fail);
-    }
-
-    return helper.fail({
-      error: {
-        message: 'User does not exist.',
-        code: 'UserNotFoundException'
-      }
-    });
-  }).catch(helper.fail);
+  return helper.cognitoIdentityServiceProvider.adminEnableUser({
+    UserPoolId: helper.poolData.id,
+    Username: result.value.email
+  }).promise().then(helper.success).catch(helper.fail);
 }, {cognitoAuthorizer: 'MyCustomAuth'});
 
 /**
@@ -337,28 +282,17 @@ api.post('/rank/{rank}/{email}', req => {
     return helper.fail(result);
   }
 
-  return helper.getUserByEmail(result.value.email).then(rst => {
-    if (rst.Users[0]) {
-      // setup required attributes
-      const params = {
-        UserPoolId: helper.poolData.id,
-        Username: rst.Users[0].Username,
-        UserAttributes: [
-          {
-            Name: 'custom:rank',
-            Value: result.value.rank
-          }
-        ]
-      };
-      return helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params)
-        .promise().then(helper.success).catch(helper.fail);
-    }
-
-    return helper.fail({
-      error: {
-        message: 'User does not exist.',
-        code: 'UserNotFoundException'
+  // setup required attributes
+  const params = {
+    UserPoolId: helper.poolData.id,
+    Username: result.value.email,
+    UserAttributes: [
+      {
+        Name: 'custom:rank',
+        Value: result.value.rank
       }
-    });
-  }).catch(helper.fail);
+    ]
+  };
+  return helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params)
+    .promise().then(helper.success).catch(helper.fail);
 }, {cognitoAuthorizer: 'MyCustomAuth'});
