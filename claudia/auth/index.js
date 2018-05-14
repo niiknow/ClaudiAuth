@@ -22,7 +22,7 @@ api.post('/login', req => {
     return helper.fail(result);
   }
 
-  helper.cognitoIdentityServiceProvider.adminInitiateAuth({
+  return helper.cognitoIdentityServiceProvider.adminInitiateAuth({
     AuthFlow: authFlow,
     AuthParameters: {
       USERNAME: result.value.email,
@@ -42,7 +42,7 @@ api.post('/refresh', req => {
     return helper.fail(result);
   }
 
-  helper.cognitoIdentityServiceProvider.adminInitiateAuth({
+  return helper.cognitoIdentityServiceProvider.adminInitiateAuth({
     AuthFlow: 'REFRESH_TOKEN_AUTH',
     AuthParameters: {
       REFRESH_TOKEN: result.value.refresh_token
@@ -87,7 +87,8 @@ api.post('/signup', req => {
   for (const k in result.value) {
     if ([
       'password', 'confirmPassword', 'uid',
-      'rank', 'email', 'preferred_username'
+      'rank', 'email', 'preferred_username',
+      'create_at', 'update_at', 'enabled', 'status'
     ].indexOf(k) > -1) {
       continue;
     }
@@ -105,7 +106,7 @@ api.post('/signup', req => {
     }
   }
 
-  helper.cognitoIdentityServiceProvider.signUp(params)
+  return helper.cognitoIdentityServiceProvider.signUp(params)
     .promise().then(helper.success).catch(helper.fail);
 });
 
@@ -126,7 +127,7 @@ api.post('/signup-confirm', req => {
     ForceAliasCreation: true
   };
 
-  helper.cognitoIdentityServiceProvider.confirmSignUp(params).promise()
+  return helper.cognitoIdentityServiceProvider.confirmSignUp(params).promise()
     .then(helper.success).catch(helper.fail);
 });
 
@@ -144,7 +145,7 @@ api.post('/confirm-resend', req => {
     Username: result.value.email
   };
 
-  helper.cognitoIdentityServiceProvider.resendConfirmationCode(params).promise()
+  return helper.cognitoIdentityServiceProvider.resendConfirmationCode(params).promise()
     .then(helper.success).catch(helper.fail);
 });
 
@@ -165,7 +166,7 @@ api.post('/change-password', req => {
     AccessToken: result.value.token
   };
 
-  helper.cognitoIdentityServiceProvider.changePassword(params).promise()
+  return helper.cognitoIdentityServiceProvider.changePassword(params).promise()
     .then(helper.success).catch(helper.fail);
 });
 
@@ -183,7 +184,7 @@ api.post('/forgot-password', req => {
     Username: result.value.email
   };
 
-  helper.cognitoIdentityServiceProvider.forgotPassword(params).promise()
+  return helper.cognitoIdentityServiceProvider.forgotPassword(params).promise()
     .then(helper.success).catch(helper.fail);
 });
 
@@ -205,6 +206,6 @@ api.post('/forgot-password-confirm', req => {
     Password: result.value.password
   };
 
-  helper.cognitoIdentityServiceProvider.confirmForgotPassword(params).promise()
+  return helper.cognitoIdentityServiceProvider.confirmForgotPassword(params).promise()
     .then(helper.success).catch(helper.fail);
 });

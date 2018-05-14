@@ -33,7 +33,11 @@ const schema = {
     pay_brand: Joi.string().trim(),
     pay_last4: Joi.number(),
     pay_xmonth: Joi.number(),
-    pay_xyear: Joi.number()
+    pay_xyear: Joi.number(),
+    create_at: Joi.string(),
+    update_at: Joi.string(),
+    enabled: Joi.boolean(),
+    status: Joi.string()
   },
   custom: [
     'is_retired', 'occupation', 'employer',

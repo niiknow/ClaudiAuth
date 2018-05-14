@@ -5,7 +5,6 @@ const helper = require('./helper');
  * cache to obtain and verify permission
  */
 const Access = {
-  test: 1,
   isRank: (auth, checkRank = 'adm') => {
     const rank = auth.claims['custom:rank'];
     return (rank && rank === checkRank);

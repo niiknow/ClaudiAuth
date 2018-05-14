@@ -2,6 +2,7 @@ const ApiBuilder = require('claudia-api-builder');
 const Joi = require('joi');
 const UserValidation = require('./lib/user.validation');
 const helper = require('./lib/helper');
+const Access = require('./lib/access');
 
 const api = new ApiBuilder();
 
@@ -16,7 +17,7 @@ api.post('/list', req => {
   // console.log(JSON.stringify(auth, 2));
 
   // only admiral rank can do this
-  if (!helper.isRank(auth, 'adm')) {
+  if (!Access.isRank(auth, 'adm')) {
     return helper.fail('Access is denied.');
   }
 
@@ -40,7 +41,17 @@ api.post('/list', req => {
     Limit: result.value.limit || 60,
     PaginationToken: result.value.page,
     UserPoolId: helper.poolData.id
-  }).promise().then(helper.success).catch(helper.fail);
+  }).promise().then(rst => {
+    const users = [];
+
+    if (rst.Users) {
+      rst.Users.forEach(user => {
+        users.push(helper.transformCognitoUser(user));
+      });
+    }
+
+    return helper.success({Users: users});
+  }).catch(helper.fail);
 }, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/create', req => {
@@ -48,7 +59,7 @@ api.post('/create', req => {
   // console.log(JSON.stringify(auth, 2));
 
   // only admiral rank can do this
-  if (!helper.isRank(auth, 'adm')) {
+  if (!Access.isRank(auth, 'adm')) {
     return helper.fail('Access is denied.');
   }
 
@@ -61,7 +72,7 @@ api.post('/create', req => {
   // setup required attributes
   const params = {
     UserPoolId: helper.poolData.id,
-    Username: result.value.email,
+    Username: uuid,
     TemporaryPassword: result.value.password,
     ForceAliasCreation: true,
     UserAttributes: [
@@ -85,79 +96,10 @@ api.post('/create', req => {
   };
 
   for (const k in result.value) {
-    if (['password', 'confirmPassword', 'uid', 'rank'].indexOf(k) > -1) {
-      continue;
-    }
-
-    if (UserValidation.custom.indexOf(k) > -1) {
-      params.UserAttributes.push({
-        Name: `custom:${k}`,
-        Value: result.value[k]
-      });
-    } else {
-      params.UserAttributes.push({
-        Name: k,
-        Value: result.value[k]
-      });
-    }
-  }
-
-  helper.cognitoIdentityServiceProvider.adminCreateUser(params)
-    .promise().then(helper.success).catch(helper.fail);
-}, {cognitoAuthorizer: 'MyCustomAuth'});
-
-api.get('/retrieve/{email}', req => {
-  const auth = req.context.authorizer;
-  // console.log(JSON.stringify(auth, 2));
-
-  // validate
-  const result = Joi.validate(req.pathParams, {
-    email: UserValidation.schema.email
-  });
-  if (result.error) {
-    return helper.fail(result);
-  }
-
-  // only admiral rank and user can read
-  if (!helper.isRank(auth, 'adm') && !helper.isUser(auth, result.value.email)) {
-    return helper.fail('Access is denied.');
-  }
-
-  helper.cognitoIdentityServiceProvider.adminGetUser({
-    Username: result.value.email,
-    UserPoolId: helper.poolData.id
-  }).promise().then(helper.success).catch(helper.fail);
-}, {cognitoAuthorizer: 'MyCustomAuth'});
-
-api.post('/update', req => {
-  const auth = req.context.authorizer;
-  // console.log(JSON.stringify(auth, 2));
-
-  // only admiral rank can do this
-  if (!helper.isRank(auth, 'adm')) {
-    return helper.fail('Access is denied.');
-  }
-
-  const schema = Object.assign({}, UserValidation.schema);
-  delete schema.password;
-  delete schema.confirmPassword;
-
-  const result = Joi.validate(req.body, schema);
-  if (result.error) {
-    return helper.fail(result);
-  }
-
-  // setup required attributes
-  const params = {
-    UserPoolId: helper.poolData.id,
-    Username: result.value.email,
-    UserAttributes: []
-  };
-
-  for (const k in result.value) {
     if ([
       'password', 'confirmPassword', 'uid',
-      'rank', 'email', 'preferred_username'
+      'rank', 'email', 'preferred_username',
+      'create_at', 'update_at', 'enabled', 'status'
     ].indexOf(k) > -1) {
       continue;
     }
@@ -175,8 +117,105 @@ api.post('/update', req => {
     }
   }
 
-  helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params)
+  return helper.cognitoIdentityServiceProvider.adminCreateUser(params)
     .promise().then(helper.success).catch(helper.fail);
+}, {cognitoAuthorizer: 'MyCustomAuth'});
+
+api.get('/retrieve/{email}', req => {
+  const auth = req.context.authorizer;
+  // console.log(JSON.stringify(auth, 2));
+
+  // validate
+  const result = Joi.validate(req.pathParams, {
+    email: UserValidation.schema.email
+  });
+  if (result.error) {
+    return helper.fail(result);
+  }
+
+  // only admiral rank
+  if (!Access.isRank(auth, 'adm')) {
+    return helper.fail('Access is denied.');
+  }
+
+  return helper.getUserByEmail(result.value.email).then(rst => {
+    if (rst.Users[0]) {
+      return helper.cognitoIdentityServiceProvider.adminGetUser({
+        Username: rst.Users[0].Username,
+        UserPoolId: helper.poolData.id
+      }).promise().then(helper.success).catch(helper.fail);
+    }
+
+    return helper.fail({
+      error: {
+        message: 'User does not exist.',
+        code: 'UserNotFoundException'
+      }
+    });
+  }).catch(helper.fail);
+}, {cognitoAuthorizer: 'MyCustomAuth'});
+
+api.post('/update', req => {
+  const auth = req.context.authorizer;
+  // console.log(JSON.stringify(auth, 2));
+
+  // only admiral rank can do this
+  if (!Access.isRank(auth, 'adm')) {
+    return helper.fail('Access is denied.');
+  }
+
+  const schema = Object.assign({}, UserValidation.schema);
+  delete schema.password;
+  delete schema.confirmPassword;
+
+  const result = Joi.validate(req.body, schema);
+  if (result.error) {
+    return helper.fail(result);
+  }
+
+  // setup required attributes
+  const params = {
+    UserPoolId: helper.poolData.id,
+    UserAttributes: []
+  };
+
+  for (const k in result.value) {
+    if ([
+      'password', 'confirmPassword', 'uid',
+      'rank', 'email', 'preferred_username',
+      'create_at', 'update_at', 'enabled', 'status'
+    ].indexOf(k) > -1) {
+      continue;
+    }
+
+    if (UserValidation.custom.indexOf(k) > -1) {
+      params.UserAttributes.push({
+        Name: `custom:${k}`,
+        Value: result.value[k]
+      });
+    } else {
+      params.UserAttributes.push({
+        Name: k,
+        Value: result.value[k]
+      });
+    }
+  }
+
+  return helper.getUserByEmail(result.value.email).then(rst => {
+    if (rst.Users[0]) {
+      // setup required attributes
+      params.Username = rst.Users[0].Username;
+      return helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params)
+        .promise().then(helper.success).catch(helper.fail);
+    }
+
+    return helper.fail({
+      error: {
+        message: 'User does not exist.',
+        code: 'UserNotFoundException'
+      }
+    });
+  }).catch(helper.fail);
 }, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/delete/{email}', req => {
@@ -184,7 +223,7 @@ api.post('/delete/{email}', req => {
   // console.log(JSON.stringify(auth, 2));
 
   // only admiral rank
-  if (!helper.isRank(auth, 'adm')) {
+  if (!Access.isRank(auth, 'adm')) {
     return helper.fail('Access is denied.');
   }
 
@@ -196,10 +235,21 @@ api.post('/delete/{email}', req => {
     return helper.fail(result);
   }
 
-  helper.cognitoIdentityServiceProvider.adminDeleteUser({
-    UserPoolId: helper.poolData.id,
-    Username: result.value.email
-  }).promise().then(helper.success).catch(helper.fail);
+  return helper.getUserByEmail(result.value.email).then(rst => {
+    if (rst.Users[0]) {
+      return helper.cognitoIdentityServiceProvider.adminDeleteUser({
+        UserPoolId: helper.poolData.id,
+        Username: rst.Users[0].Username
+      }).promise().then(helper.success).catch(helper.fail);
+    }
+
+    return helper.fail({
+      error: {
+        message: 'User does not exist.',
+        code: 'UserNotFoundException'
+      }
+    });
+  }).catch(helper.fail);
 }, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/disable/{email}', req => {
@@ -207,7 +257,7 @@ api.post('/disable/{email}', req => {
   // console.log(JSON.stringify(auth, 2));
 
   // only admiral rank
-  if (!helper.isRank(auth, 'adm')) {
+  if (!Access.isRank(auth, 'adm')) {
     return helper.fail({message: 'Access is denied.'});
   }
 
@@ -219,10 +269,21 @@ api.post('/disable/{email}', req => {
     return helper.fail(result);
   }
 
-  helper.cognitoIdentityServiceProvider.adminDisableUser({
-    UserPoolId: helper.poolData.id,
-    Username: result.value.email
-  }).promise().then(helper.success).catch(helper.fail);
+  return helper.getUserByEmail(result.value.email).then(rst => {
+    if (rst.Users[0]) {
+      return helper.cognitoIdentityServiceProvider.adminDisableUser({
+        UserPoolId: helper.poolData.id,
+        Username: rst.Users[0].Username
+      }).promise().then(helper.success).catch(helper.fail);
+    }
+
+    return helper.fail({
+      error: {
+        message: 'User does not exist.',
+        code: 'UserNotFoundException'
+      }
+    });
+  }).catch(helper.fail);
 }, {cognitoAuthorizer: 'MyCustomAuth'});
 
 api.post('/enable/{email}', req => {
@@ -230,7 +291,7 @@ api.post('/enable/{email}', req => {
   // console.log(JSON.stringify(auth, 2));
 
   // only admiral rank
-  if (!helper.isRank(auth, 'adm')) {
+  if (!Access.isRank(auth, 'adm')) {
     return helper.fail('Access is denied.');
   }
 
@@ -242,10 +303,21 @@ api.post('/enable/{email}', req => {
     return helper.fail(result);
   }
 
-  helper.cognitoIdentityServiceProvider.adminEnableUser({
-    UserPoolId: helper.poolData.id,
-    Username: result.value.email
-  }).promise().then(helper.success).catch(helper.fail);
+  return helper.getUserByEmail(result.value.email).then(rst => {
+    if (rst.Users[0]) {
+      return helper.cognitoIdentityServiceProvider.adminEnableUser({
+        UserPoolId: helper.poolData.id,
+        Username: rst.Users[0].Username
+      }).promise().then(helper.success).catch(helper.fail);
+    }
+
+    return helper.fail({
+      error: {
+        message: 'User does not exist.',
+        code: 'UserNotFoundException'
+      }
+    });
+  }).catch(helper.fail);
 }, {cognitoAuthorizer: 'MyCustomAuth'});
 
 /**
@@ -258,7 +330,7 @@ api.post('/rank/{rank}/{email}', req => {
   // console.log(JSON.stringify(auth, 2));
 
   // only admiral rank
-  if (!helper.isRank(auth, 'adm')) {
+  if (!Access.isRank(auth, 'adm')) {
     return helper.fail('Access is denied.');
   }
 
@@ -271,18 +343,28 @@ api.post('/rank/{rank}/{email}', req => {
     return helper.fail(result);
   }
 
-  // setup required attributes
-  const params = {
-    UserPoolId: helper.poolData.id,
-    Username: result.value.email,
-    UserAttributes: [
-      {
-        Name: 'custom:rank',
-        Value: result.value.rank
-      }
-    ]
-  };
+  return helper.getUserByEmail(result.value.email).then(rst => {
+    if (rst.Users[0]) {
+      // setup required attributes
+      const params = {
+        UserPoolId: helper.poolData.id,
+        Username: rst.Users[0].Username,
+        UserAttributes: [
+          {
+            Name: 'custom:rank',
+            Value: result.value.rank
+          }
+        ]
+      };
+      return helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params)
+        .promise().then(helper.success).catch(helper.fail);
+    }
 
-  helper.cognitoIdentityServiceProvider.adminUpdateUserAttributes(params)
-    .promise().then(helper.success).catch(helper.fail);
+    return helper.fail({
+      error: {
+        message: 'User does not exist.',
+        code: 'UserNotFoundException'
+      }
+    });
+  }).catch(helper.fail);
 }, {cognitoAuthorizer: 'MyCustomAuth'});

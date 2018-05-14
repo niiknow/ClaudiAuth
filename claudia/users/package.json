@@ -4,10 +4,10 @@
   "description": "Lambda function for users api",
   "scripts": {
     "test": "mkdir -p lib && rsync -a ../1lib/*.js ./lib/ && xo && nyc ava",
-    "create": "claudia create --region us-west-2 --timeout 10 --api-module index --set-env-from-json ../../.env.dev.json --policies ../../aws/default_policies/",
-    "update": "claudia update --set-env-from-json ../../.env.dev.json",
-    "update-stg": "claudia update --version stg --set-env-from-json ../../.env.stg.json",
-    "update-prd": "claudia update --version prd --set-env-from-json ../../.env.prd.json"
+    "create": "mkdir -p lib && rsync -a ../1lib/*.js ./lib/ && claudia create --region us-west-2 --timeout 10 --api-module index --set-env-from-json ../../.env.dev.json --policies ../../aws/default_policies/",
+    "update": "mkdir -p lib && rsync -a ../1lib/*.js ./lib/ && claudia update --set-env-from-json ../../.env.dev.json",
+    "update-stg": "mkdir -p lib && rsync -a ../1lib/*.js ./lib/ && claudia update --version stg --set-env-from-json ../../.env.stg.json",
+    "update-prd": "mkdir -p lib && rsync -a ../1lib/*.js ./lib/ && claudia update --version prd --set-env-from-json ../../.env.prd.json"
   },
   "author": "noogen <friends@niiknow.org>",
   "dependencies": {

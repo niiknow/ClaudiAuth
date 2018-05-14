@@ -108,6 +108,16 @@ test.serial('/retrieve success with valid values', async t => {
           });
         }
       };
+    },
+    listUsers: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
     }
   });
 
@@ -131,6 +141,16 @@ test.serial('/update success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     adminUpdateUserAttributes: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
+    },
+    listUsers: () => {
       actual = true;
       return {
         promise: () => {
@@ -193,6 +213,16 @@ test.serial('/delete success with valid values', async t => {
           });
         }
       };
+    },
+    listUsers: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
     }
   });
 
@@ -216,6 +246,16 @@ test.serial('/disable success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     adminDisableUser: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
+    },
+    listUsers: () => {
       actual = true;
       return {
         promise: () => {
@@ -255,6 +295,16 @@ test.serial('/enable success with valid values', async t => {
           });
         }
       };
+    },
+    listUsers: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
     }
   });
 
@@ -278,6 +328,16 @@ test.serial('/rank success with valid values', async t => {
   let actual = false;
   const helperMock = sinon.stub(helper, 'cognitoIdentityServiceProvider').value({
     adminUpdateUserAttributes: () => {
+      actual = true;
+      return {
+        promise: () => {
+          return new Promise(resolve => {
+            resolve({});
+          });
+        }
+      };
+    },
+    listUsers: () => {
       actual = true;
       return {
         promise: () => {
