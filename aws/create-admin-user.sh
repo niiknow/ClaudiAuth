@@ -29,8 +29,6 @@ region=`node -p "require('./config.json').region"`
 userPoolId=`node -p "require('../.env.$env.json').userPoolId"`
 userPoolClientId=`node -p "require('../.env.$env.json').userPoolClientId"`
 
-echo -n "Enter username [ENTER]: "
-read USERNAME
 echo -n "Enter email [ENTER]: "
 read EMAIL
 echo -n "Enter password (Alphanumeric, 1 capital, 1 special = 8 total chars) and press [ENTER]: "
@@ -49,7 +47,7 @@ read PASSWORD
     },
     {
         "Name": "custom:uid",
-        "Value": "$USERNAME"
+        "Value": "asdf"
     },
     {
         "Name": "custom:rank",
@@ -66,11 +64,11 @@ aws cognito-idp admin-create-user --region $region --cli-input-json ${inputJson}
 
 echo 'created'
 
-aws cognito-idp initiate-auth --region $region --client-id "$userPoolClientId" --auth-flow "USER_PASSWORD_AUTH" --auth-parameters USERNAME="$USERNAME",PASSWORD="$PASSWORD" > .env.$env.json
+aws cognito-idp initiate-auth --region $region --client-id "$userPoolClientId" --auth-flow "USER_PASSWORD_AUTH" --auth-parameters USERNAME="$EMAIL",PASSWORD="$PASSWORD" > .env.$env.json
 
 echo 'challenge'
 
 inputSession=`node -p "require('./.env.$env.json').Session"`
-aws cognito-idp respond-to-auth-challenge --session ${inputSession} --region $region --client-id "$userPoolClientId" --challenge-name "NEW_PASSWORD_REQUIRED" --challenge-responses USERNAME="$USERNAME",NEW_PASSWORD="$PASSWORD"
+aws cognito-idp respond-to-auth-challenge --session ${inputSession} --region $region --client-id "$userPoolClientId" --challenge-name "NEW_PASSWORD_REQUIRED" --challenge-responses USERNAME="$EMAIL",NEW_PASSWORD="$PASSWORD"
 
 echo 'auth'
