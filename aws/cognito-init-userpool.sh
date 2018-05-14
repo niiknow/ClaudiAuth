@@ -98,7 +98,7 @@ EOF
     ]
 }
 EOF
-) > ./default-policies/claudiauthdb.json
+) > ./default_policies/claudiauthdb.json
 
 ( cat <<EOF
 {
@@ -120,6 +120,6 @@ EOF
     ]
 }
 EOF
-) > ./default-policies/cognito-idp.json
+) > ./default_policies/cognito-idp.json
 
 exit 0

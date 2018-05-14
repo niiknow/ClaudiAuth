@@ -74,11 +74,11 @@ aws cognito-idp admin-create-user --region $region --cli-input-json ${inputJson}
 
 echo 'created'
 
-aws cognito-idp admin-initiate-auth --region $region --user-pool-id "$userPoolId" --client-id "$userPoolClientId" --auth-flow "ADMIN_NO_SRP_AUTH" --auth-parameters USERNAME="$USERNAME",PASSWORD="$PASSWORD" > .env.$env.json
+aws cognito-idp initiate-auth --region $region --client-id "$userPoolClientId" --auth-flow "USER_PASSWORD_AUTH" --auth-parameters USERNAME="$USERNAME",PASSWORD="$PASSWORD" > .env.$env.json
 
 echo 'challenge'
 
 inputSession=`node -p "require('./.env.$env.json').Session"`
-aws cognito-idp admin-respond-to-auth-challenge --session ${inputSession} --region $region --user-pool-id "$userPoolId" --client-id "$userPoolClientId" --challenge-name "NEW_PASSWORD_REQUIRED" --challenge-responses USERNAME="$USERNAME",NEW_PASSWORD="$PASSWORD"
+aws cognito-idp respond-to-auth-challenge --session ${inputSession} --region $region --client-id "$userPoolClientId" --challenge-name "NEW_PASSWORD_REQUIRED" --challenge-responses USERNAME="$USERNAME",NEW_PASSWORD="$PASSWORD"
 
 echo 'auth'
