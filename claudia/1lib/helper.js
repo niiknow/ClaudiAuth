@@ -17,14 +17,14 @@ const helper = {
     const rsp = {success: false};
 
     if (result) {
-      if (result.AuthenticationResult && result.AuthenticationResult.IdToken) {
+      if (result.AuthenticationResult && result.AuthenticationResult.TokenType) {
         const rst = result.AuthenticationResult;
         rsp.success = true;
         rsp.access_token = rst.IdToken;
-        rsp.backup_token = rst.AccessToken;
+        rsp.access_token2 = rst.AccessToken;
         rsp.refresh_token = rst.RefreshToken;
         rsp.expires_in = rst.ExpiresIn;
-        rsp.token_type = rst.TokenType;
+        rsp.type = rst.TokenType;
       }
       if (result.ChallengeName) {
         rsp.next = {

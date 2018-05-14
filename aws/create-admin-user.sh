@@ -29,12 +29,14 @@ region=`node -p "require('./config.json').region"`
 userPoolId=`node -p "require('../.env.$env.json').userPoolId"`
 userPoolClientId=`node -p "require('../.env.$env.json').userPoolClientId"`
 
-echo -n "Enter email and press [ENTER]: "
+echo -n "Enter username [ENTER]: "
 read USERNAME
-echo -n "Enter password (Alphanumeric, 1 capital, 1 special = 8 chars) and press [ENTER]: "
+echo -n "Enter email [ENTER]: "
+read EMAIL
+echo -n "Enter password (Alphanumeric, 1 capital, 1 special = 8 total chars) and press [ENTER]: "
 read PASSWORD
 
-aws cognito-idp admin-create-user --region $region --cli-input-json '
+( cat <<EOF
 {
   "UserPoolId": "$userPoolId",
   "Username": "$USERNAME",
@@ -42,8 +44,12 @@ aws cognito-idp admin-create-user --region $region --cli-input-json '
   "ForceAliasCreation": false,
   "UserAttributes": [
     {
-        "Name": "email",
+        "Name": "preferred_username",
         "Value": "$USERNAME"
+    },
+    {
+        "Name": "email",
+        "Value": "$EMAIL"
     },
     {
         "Name": "custom:teams",
@@ -59,10 +65,20 @@ aws cognito-idp admin-create-user --region $region --cli-input-json '
     }
   ],
   "TemporaryPassword": "$PASSWORD"
-}'
+}
+EOF
+) > .env.$env.json
 
-aws cognito-idp admin-enable-user --region $region --cli-input-json '
-{
-  "UserPoolId": "$userPoolId",
-  "Username": "$USERNAME"
-}'
+inputJson=`node -p "JSON.stringify(require('./.env.$env.json'))"`
+aws cognito-idp admin-create-user --region $region --cli-input-json ${inputJson}
+
+echo 'created'
+
+aws cognito-idp admin-initiate-auth --region $region --user-pool-id "$userPoolId" --client-id "$userPoolClientId" --auth-flow "ADMIN_NO_SRP_AUTH" --auth-parameters USERNAME="$USERNAME",PASSWORD="$PASSWORD" > .env.$env.json
+
+echo 'challenge'
+
+inputSession=`node -p "require('./.env.$env.json').Session"`
+aws cognito-idp admin-respond-to-auth-challenge --session ${inputSession} --region $region --user-pool-id "$userPoolId" --client-id "$userPoolClientId" --challenge-name "NEW_PASSWORD_REQUIRED" --challenge-responses USERNAME="$USERNAME",NEW_PASSWORD="$PASSWORD"
+
+echo 'auth'

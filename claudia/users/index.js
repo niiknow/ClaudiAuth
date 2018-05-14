@@ -9,7 +9,7 @@ module.exports = api;
 
 api.post('/list', req => {
   const auth = req.context.authorizer;
-  // console.log(JSON.stringify(auth, 2));
+  console.log(JSON.stringify(auth, 2));
 
   // only admiral rank can do this
   if (!helper.isRank(auth, 'adm')) {
