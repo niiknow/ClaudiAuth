@@ -20,6 +20,11 @@ class Helper {
       id: process.env.userPoolId,
       clientId: process.env.userPoolClientId
     };
+
+    // user default signup rank is 'deny' for security purpose
+    // this prevent user hacking by calling our signup API
+    // change this to 'user' if you wish to disable this security feature
+    this.signupRank = 'deny';
   }
 
   translateAuthResult(result) {

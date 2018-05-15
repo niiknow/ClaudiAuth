@@ -57,6 +57,9 @@ Task was provided as an example, but you can create additional micro-service API
 * Deploy other APIs
 
 # Resource
-https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html
+* https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html
+
+# Point of Interest
+* https://github.com/frsechet/cognito-user-pool - you may also be interested in this client-side wrapper.
 
 # MIT

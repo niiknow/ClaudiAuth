@@ -276,7 +276,7 @@ api.post('/rank/{rank}/{email}', req => {
   // validate
   const result = Joi.validate(req.pathParams, {
     email: UserValidation.schema.email,
-    rank: Joi.string().trim().valid(['adm', 'capt', 'cdr', 'lt', 'ens', 'user'])
+    rank: Joi.string().trim().valid(UserValidation.ranks)
   });
   if (result.error) {
     return helper.fail(result);

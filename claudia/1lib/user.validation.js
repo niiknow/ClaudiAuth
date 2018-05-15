@@ -46,6 +46,9 @@ const schema = {
     'is_retired', 'occupation', 'employer',
     'address2', 'city', 'state', 'postal', 'country', 'email_list_optin_at',
     'pay_type', 'pay_cid', 'pay_brand', 'pay_last4', 'pay_xmonth', 'pay_xyear'
+  ],
+  ranks: [
+    ['adm', 'capt', 'cdr', 'lt', 'ens', 'user', 'deny']
   ]
 };
 

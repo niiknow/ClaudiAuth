@@ -91,7 +91,7 @@ api.post('/signup', req => {
       },
       {
         Name: 'custom:rank',
-        Value: 'user'
+        Value: UserValidation.defaultRank
       }
     ]
   };

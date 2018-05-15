@@ -5,15 +5,25 @@ const helper = require('./helper');
  * cache to obtain and verify permission
  */
 class AccessHelper {
-  isRank(auth, checkRank = 'adm') {
-    const rank = auth.claims['custom:rank'];
+  isRank(auth, ranks = ['adm']) {
+    auth = auth.claims ? auth : auth.context.authorizer;
 
-    return (rank && rank === checkRank);
+    const rank = auth.claims['custom:rank'] || '';
+
+    if (typeof ranks === 'string' || ranks instanceof String) {
+      ranks = [ranks];
+    }
+
+    return ranks.indexOf(rank) >= 0;
   }
 
   async canAccessProject(auth, pid) {
-    if (this.isRank(auth, 'adm')) {
-      return {read: true, write: true, acces: 'admin'};
+    auth = auth.claims ? auth : auth.context.authorizer;
+
+    if (this.isRank(auth, ['adm'])) {
+      return {read: true, write: true, access: 'admin'};
+    } else if (this.isRank(auth, ['', 'deny'])) {
+      return {read: false, write: false, access: 'deny'}
     }
 
     const rst = {read: false, write: false, access: ''};
@@ -44,8 +54,12 @@ class AccessHelper {
   }
 
   async canAccessModule(auth, pid, mid) {
-    if (this.isRank(auth, 'adm')) {
-      return {read: true, write: true, acces: 'admin'};
+    auth = auth.claims ? auth : auth.context.authorizer;
+
+    if (this.isRank(auth, ['adm'])) {
+      return {read: true, write: true, access: 'admin'};
+    } else if (this.isRank(auth, ['', 'deny'])) {
+      return {read: false, write: false, access: 'deny'}
     }
 
     const rst = this.canAccessProject(auth, pid);
@@ -82,8 +96,12 @@ class AccessHelper {
   }
 
   async canAccessTeam(auth, tid) {
-    if (this.isRank(auth, 'adm')) {
-      return {read: true, write: true, acces: 'admin'};
+    auth = auth.claims ? auth : auth.context.authorizer;
+
+    if (this.isRank(auth, ['adm'])) {
+      return {read: true, write: true, access: 'admin'};
+    } else if (this.isRank(auth, ['', 'deny'])) {
+      return {read: false, write: false, access: 'deny'}
     }
 
     const rst = {read: false, write: false};
