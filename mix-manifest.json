@@ -1,4 +1,10 @@
 {
-    "/dist/js/app.js": "/dist/js/app.js",
-    "/dist/css/app.css": "/dist/css/app.css"
+    "/public/js/vendor.js": "/public/js/vendor.js",
+    "/public/js/vendor.js.map": "/public/js/vendor.js.map",
+    "/public/js/app.js": "/public/js/app.js",
+    "/public/css/app.css": "/public/css/app.css",
+    "/public/js/app.js.map": "/public/js/app.js.map",
+    "/public/css/app.css.map": "/public/css/app.css.map",
+    "/public/js/manifest.js": "/public/js/manifest.js",
+    "/public/js/manifest.js.map": "/public/js/manifest.js.map"
 }

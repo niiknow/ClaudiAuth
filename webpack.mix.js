@@ -11,15 +11,34 @@ const { mix } = require('laravel-mix');
  |
  */
 
- mix.sass('src/sass/app.scss', 'dist/css')
-    .js('src/js/app.js', 'dist/js')
-    .sourceMaps()
-    .browserSync({
+const webpackconf = {
+    externals: {
+        'jquery': 'jQuery'
+    },
+    devtool: 'source-map'
+};
+
+mix.webpackConfig(webpackconf);
+
+mix.js('src/js/app.js', 'public/js')
+   .extract([
+    'axios',
+    'moment',
+    'vee-validate',
+    'vue-sweetalert2',
+    'vue',
+    'vue-router',
+    'vuex'
+    ])
+   .sass('src/sass/app.scss', 'public/css')
+   .sourceMaps()
+   .browserSync({
       injectChanges: true,
       files: [ '**/*.js', '**/*.css'],
       logSnippet: true,
-      proxy:'my-site.test',
+      proxy:'claudiauth.test/public/',
     });
+
 
 // Full API
 // mix.js(src, output);

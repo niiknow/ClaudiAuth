@@ -81,4 +81,5 @@ test/fixtures/**/.fbkpm
 .vscode/
 dist/js/
 dist/css/
+hot
 
