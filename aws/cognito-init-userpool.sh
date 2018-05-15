@@ -73,7 +73,8 @@ aws s3 mb s3://$bucketName/ --region $region || true
     "userPoolId": "$userPoolId",
     "userPoolClientId": "$userPoolClientId",
     "bucketName": "$bucketName",
-    "accountNumber": "$awsAccountNumber"
+    "accountNumber": "$awsAccountNumber",
+    "logLevel": "none"
 }
 EOF
 ) > ../.env.$env.json

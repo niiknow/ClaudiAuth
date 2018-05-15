@@ -27,6 +27,12 @@ class Helper {
     this.signupRank = 'deny';
   }
 
+  log(msg, level = 'info') {
+    if (process.env.logLevel && process.env.logLevel !== 'none') {
+      console.log(msg);
+    }
+  }
+
   translateAuthResult(result) {
     const rsp = {success: false};
 
