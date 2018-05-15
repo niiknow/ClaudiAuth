@@ -1,0 +1,36 @@
+{
+  "name": "ClaudiAuth",
+  "version": "0.1.0",
+  "description": "Dummy package json",
+  "xo": {
+    "semicolon": true,
+    "prefer-const": false,
+    "space": 2,
+    "rules": {
+      "object-shorthand": [
+        0,
+        "consistent"
+      ],
+      "capitalized-comments": [
+        "error",
+        "never"
+      ],
+      "camelcase": [
+        "error",
+        {
+          "properties": "never"
+        }
+      ],
+      "ava/prefer-async-await": 0,
+      "promise/prefer-await-to-then": "off",
+      "promise/prefer-await-to-callbacks": "off"
+    }
+  },
+  "ava": {
+    "failWithoutAssertions": true
+  },
+  "dependencies": {
+    "global": "^4.3.2",
+    "yarn": "^1.6.0"
+  }
+}
