@@ -1,7 +1,7 @@
 {
   "name": "ClaudiAuth",
   "version": "0.1.0",
-  "description": "Dummy package json",
+  "description": "Saas Starter Project",
   "xo": {
     "semicolon": true,
     "prefer-const": false,
